@@ -9,12 +9,19 @@
   --sky-bottom: #52a6e8;
   --sky-gradient: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-bottom) 100%);
   
-  --island-land: #e2f2fc;
+  --island-land: #edf7fe;
   --island-land-hover: #bae6fd;
   --island-land-active: #7dd3fc;
-  --island-stroke: #5caee0;
+  --island-stroke: #1e3a8a; /* 銳利高對比深藍界線，確保縣市與海岸線清清楚楚 */
   --island-stroke-hover: #0284c7;
   --island-stroke-active: #0369a1;
+
+  /* 台灣地勢海拔色彩 (Hypsometric Elevation Tints) */
+  --elev-low: #86efac;      /* 0~200m 西部平原與縱谷翡翠綠 */
+  --elev-foothill: #fde047; /* 200~800m 丘陵台地暖金 */
+  --elev-mid: #fb923c;      /* 800~2000m 中海拔山區陶土橙 */
+  --elev-high: #dc2626;     /* 2000~3000m 百岳高山朱紅 */
+  --elev-summit: #f8fafc;   /* 3000m+ 玉山雪山巍峨峰脊白 */
 
   --surface-glass: rgba(255, 255, 255, 0.16);
   --surface-glass-solid: rgba(255, 255, 255, 0.92);
@@ -510,28 +517,45 @@ body.map-theme {
   overflow: visible;
 }
 
-/* 縣市邊界路徑 (County Paths) */
+/* 縣市邊界路徑 (County Paths: 高清晰度界線) */
 .county-path {
   fill: var(--island-land);
   stroke: var(--island-stroke);
-  stroke-width: 2.2;
+  stroke-width: 2.8;
   stroke-linejoin: round;
   stroke-linecap: round;
   cursor: pointer;
-  transition: fill 0.22s ease, stroke 0.22s ease, filter 0.22s ease, stroke-width 0.22s ease;
+  transition: fill 0.25s ease, stroke 0.25s ease, filter 0.25s ease, stroke-width 0.25s ease, opacity 0.25s ease;
+  filter: drop-shadow(0 2px 5px rgba(15, 23, 42, 0.18));
 }
 
 .county-path:hover {
   fill: var(--island-land-hover);
-  stroke: var(--island-stroke-hover);
-  stroke-width: 3.8;
-  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85));
+  stroke: #38bdf8 !important;
+  stroke-width: 4.6 !important;
+  filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.95)) !important;
 }
 
 .county-path.active {
   fill: var(--island-land-active);
-  stroke: var(--island-stroke-active);
-  stroke-width: 4.2;
+  stroke: #0284c7 !important;
+  stroke-width: 5.0 !important;
+  filter: drop-shadow(0 0 14px rgba(2, 132, 199, 0.8));
+}
+
+/* 縣市標籤文字 (County Labels) */
+.county-label-text {
+  font-size: 19px;
+  font-weight: 700;
+  fill: #0f2b48;
+  text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
+  paint-order: stroke fill;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  transition: opacity 0.3s ease;
 }
 
 /* 縣市氣象圖示浮動標記 (Map Pins) */
@@ -1301,3 +1325,722 @@ body.map-theme {
     padding: 16px;
   }
 }
+
+/* ==========================================================================
+   清晰界線模式 (Administrative Boundary Mode)
+   各分區色彩鮮明對比，邊界線加粗銳利
+   ========================================================================== */
+.map-mode-admin .county-path[data-region="north"] {
+  fill: #dbeafe;
+  stroke: #1e40af;
+  stroke-width: 3.0;
+}
+.map-mode-admin .county-path[data-region="central"] {
+  fill: #dcfce7;
+  stroke: #166534;
+  stroke-width: 3.0;
+}
+.map-mode-admin .county-path[data-region="south"] {
+  fill: #fef3c7;
+  stroke: #9a3412;
+  stroke-width: 3.0;
+}
+.map-mode-admin .county-path[data-region="east"] {
+  fill: #ccfbf1;
+  stroke: #0f766e;
+  stroke-width: 3.0;
+}
+.map-mode-admin .county-path[data-region="islands"] {
+  fill: #f3e8ff;
+  stroke: #6b21a8;
+  stroke-width: 3.0;
+}
+
+/* ==========================================================================
+   立體地勢模式 (Topographic Elevation & Shaded Relief Mode)
+   五大山脈立體浮雕、等高色彩過渡與名山百岳地標
+   ========================================================================== */
+.map-mode-elevation .county-path {
+  fill: url(#island-elevation-gradient);
+  stroke: rgba(15, 23, 42, 0.55);
+  stroke-width: 2.0;
+  filter: drop-shadow(0 3px 8px rgba(12, 45, 78, 0.28));
+}
+
+.map-mode-elevation .county-label-text {
+  opacity: 0.35;
+}
+
+/* 地勢立體山脈與等高線路徑 */
+#topography-layer {
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.mountain-ridge {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.ridge-backbone {
+  stroke: rgba(120, 28, 28, 0.85);
+  stroke-width: 14;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+}
+
+.ridge-crest {
+  stroke: #ffffff;
+  stroke-width: 4.5;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9));
+}
+
+.mountain-shadow {
+  fill: none;
+  stroke: rgba(15, 23, 42, 0.28);
+  stroke-width: 36;
+  filter: blur(8px);
+}
+
+.contour-band {
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+
+/* 百岳山峰標記 (Summit Peak Pins) */
+.summit-pin {
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.summit-pin:hover {
+  transform: scale(1.35) !important;
+}
+
+.summit-pin-bg {
+  fill: #991b1b;
+  stroke: #ffffff;
+  stroke-width: 3;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45));
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+
+.summit-pin:hover .summit-pin-bg {
+  fill: #dc2626;
+  stroke: #fef08a;
+  filter: drop-shadow(0 0 14px rgba(239, 68, 68, 0.9));
+}
+
+.summit-icon {
+  font-size: 22px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.summit-label {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #ffffff;
+  text-anchor: middle;
+  paint-order: stroke fill;
+  stroke: #450a0a;
+  stroke-width: 4px;
+  user-select: none;
+  pointer-events: none;
+  letter-spacing: 0.5px;
+}
+
+.summit-alt {
+  font-size: 12px;
+  font-weight: 700;
+  fill: #fef08a;
+  text-anchor: middle;
+  paint-order: stroke fill;
+  stroke: #1e1e1e;
+  stroke-width: 3px;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 山脈名稱文字標記 (Range Labels) */
+.range-label {
+  font-size: 18px;
+  font-weight: 800;
+  fill: rgba(255, 255, 255, 0.95);
+  paint-order: stroke fill;
+  stroke: rgba(69, 10, 10, 0.85);
+  stroke-width: 4px;
+  user-select: none;
+  pointer-events: none;
+  letter-spacing: 2px;
+  opacity: 0.9;
+}
+
+/* ==========================================================================
+   地圖圖層切換器 (Map Layer Switcher)
+   ========================================================================== */
+.map-layer-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(11, 28, 52, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px rgba(2, 22, 46, 0.35);
+  margin-top: 10px;
+}
+
+.switcher-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #bae6fd;
+  white-space: nowrap;
+}
+
+.layer-pill {
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  white-space: nowrap;
+}
+
+.layer-pill:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.layer-pill.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+}
+
+/* ==========================================================================
+   地勢海拔高低差圖例 (Elevation Legend)
+   ========================================================================== */
+.elevation-legend {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  z-index: 10;
+  background: rgba(11, 28, 52, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(16px);
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  max-width: 380px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.elevation-legend.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+}
+
+.legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.legend-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.legend-unit {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.legend-gradient-bar {
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, 
+    #6ee7b7 0%,   /* 0m 平原 */
+    #86efac 20%,  /* 200m */
+    #fde047 40%,  /* 500m 丘陵台地 */
+    #fb923c 65%,  /* 1500m 中海拔 */
+    #dc2626 85%,  /* 3000m 百岳 */
+    #ffffff 100%  /* 3952m 玉山峰頂 */
+  );
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.legend-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin-top: 6px;
+}
+
+.legend-note {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.note-badge {
+  background: #b91c1c;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-right: 4px;
+}
+
+/* 山峰百岳懸停提示 (Peak Tooltip) */
+.peak-tooltip {
+  position: fixed;
+  z-index: 120;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  backdrop-filter: blur(20px);
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  max-width: 280px;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translate(-50%, -115%);
+}
+
+.peak-tooltip.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.peak-tt-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.peak-tt-icon {
+  font-size: 26px;
+}
+
+.peak-tt-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fef08a;
+  display: block;
+}
+
+.peak-tt-range {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.peak-tt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.peak-tt-label {
+  color: #94a3b8;
+}
+
+.peak-tt-alt {
+  font-weight: 800;
+  color: #f87171;
+}
+
+.peak-tt-desc {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 6px;
+}
+
+/* ==========================================================================
+   衛星雲圖導覽按鈕與地圖疊加層 (Satellite Controls)
+   ========================================================================== */
+.btn-satellite-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: 1px solid #38bdf8;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.45);
+  transition: all 0.25s ease;
+}
+
+.btn-satellite-nav:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.6);
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+}
+
+.sat-live-pulse {
+  width: 9px;
+  height: 9px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 10px #22c55e;
+  animation: radarBlink 1.4s infinite;
+}
+
+@keyframes radarBlink {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+/* 台灣地圖衛星雲圖底圖疊加層 */
+.map-satellite-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.map-mode-satellite .map-satellite-overlay {
+  opacity: 0.9;
+  visibility: visible;
+}
+
+.map-satellite-img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  filter: contrast(1.15) brightness(1.05);
+}
+
+.sat-overlay-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(56, 189, 248, 0.6);
+  color: #38bdf8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(8px);
+}
+
+/* ==========================================================================
+   即時衛星雲圖與雷達回波檢視器 (Satellite Modal Viewer)
+   ========================================================================== */
+.satellite-modal-box {
+  max-width: 980px;
+  width: 95%;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.satellite-modal-title-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.satellite-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(34, 197, 94, 0.18);
+  border: 1px solid #22c55e;
+  color: #4ade80;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.pulse-beacon {
+  width: 7px;
+  height: 7px;
+  background: #4ade80;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #4ade80;
+}
+
+.satellite-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.satellite-modal-body {
+  padding: 16px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 4 大產品切換標籤頁 (Tabs) */
+.satellite-channels-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.sat-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  text-align: left;
+}
+
+.sat-tab:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.sat-tab.active {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.4) 0%, rgba(3, 105, 161, 0.6) 100%);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
+}
+
+.sat-tab-icon {
+  font-size: 24px;
+}
+
+.sat-tab-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sat-tab-name {
+  font-weight: 700;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sat-tab-sub {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.sat-tab.active .sat-tab-sub {
+  color: #bae6fd;
+}
+
+/* 雲圖顯示舞台 */
+.satellite-display-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.satellite-img-container {
+  position: relative;
+  background: #020b17;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 420px;
+  max-height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.satellite-loading {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 11, 23, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #bae6fd;
+  z-index: 5;
+  transition: opacity 0.3s ease;
+}
+
+.satellite-loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.satellite-live-img {
+  max-width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+/* 雲圖資訊列 */
+.satellite-info-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.82rem;
+}
+
+.sat-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sat-meta-label {
+  color: #94a3b8;
+}
+
+.sat-meta-val {
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+/* 產品色階圖例面板 */
+.satellite-legend-panel {
+  padding: 12px 16px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sat-legend-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #38bdf8;
+  margin-bottom: 4px;
+}
+
+.sat-legend-desc {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+/* 雷達回波 dBZ 色階柱 */
+.radar-scale-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.radar-scale-colors {
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, 
+    #00ffff 0%,   /* 5 dBZ */
+    #0077ff 15%,  /* 15 dBZ */
+    #00ff00 30%,  /* 25 dBZ */
+    #ffff00 50%,  /* 35 dBZ */
+    #ff7700 70%,  /* 45 dBZ */
+    #ff0000 85%,  /* 55 dBZ */
+    #ff00ff 100%  /* 65 dBZ */
+  );
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.radar-scale-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.satellite-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 24px;
+}
+
+.sat-footer-hint {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+  .satellite-channels-tabs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .map-layer-switcher {
+    flex-wrap: wrap;
+    max-width: 90vw;
+  }
+
+  .elevation-legend {
+    left: 10px;
+    bottom: 10px;
+    max-width: calc(100vw - 20px);
+    padding: 8px 12px;
+  }
+}
+

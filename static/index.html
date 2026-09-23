@@ -51,6 +51,10 @@
           🔄
         </button>
 
+        <button class="btn btn-satellite-nav" id="btn-satellite-modal" title="開啟中央氣象署即時衛星雲圖與雷達回波">
+          <span class="sat-live-pulse"></span>🛰️ <span>即時衛星雲圖</span>
+        </button>
+
         <button class="btn btn-secondary" id="btn-toggle-grid" title="切換縣市清單檢視">
           📊 <span>縣市列表</span>
         </button>
@@ -70,7 +74,7 @@
   <main class="map-stage-main">
     <section class="taiwan-island-stage" id="taiwan-stage">
       
-      <!-- 地圖左上角浮動指引徽章 (精準復刻參考圖樣式) -->
+      <!-- 地圖左上角浮動指引與圖層切換控制區 -->
       <div class="stage-overlay-controls">
         <div class="overlay-period-badge" id="overlay-period-badge">
           <span class="badge-icon">☀️</span>
@@ -80,6 +84,15 @@
         <div class="overlay-hint-pill" id="overlay-hint">
           <span class="hint-icon">ℹ️</span>
           <span class="hint-text">滑鼠移至縣市看天氣 · 點擊看 36H 詳細預報</span>
+        </div>
+
+        <!-- 地圖圖層切換器：清晰界線 / 立體地勢 / 氣象預報 / 衛星雲圖 -->
+        <div class="map-layer-switcher glassmorphism" id="map-layer-switcher">
+          <span class="switcher-label">🗺️ 地圖圖層：</span>
+          <button class="layer-pill active" data-layer="elevation" id="btn-layer-elevation" title="立體地形等高浮雕與五大山脈百岳">🏔️ 立體地勢</button>
+          <button class="layer-pill" data-layer="admin" id="btn-layer-admin" title="高對比縣市行政界線與分區色彩">🏛️ 清晰界線</button>
+          <button class="layer-pill" data-layer="weather" id="btn-layer-weather" title="即時氣象圖示浮動標記">🌤️ 氣象標記</button>
+          <button class="layer-pill" data-layer="satellite" id="btn-layer-satellite" title="台灣即時衛星雲圖疊加視角">🛰️ 衛星雲圖</button>
         </div>
       </div>
 
@@ -110,6 +123,48 @@
             <p>正在載入全台即時氣象地圖...</p>
           </div>
           <!-- SVG 由 app.js 動態渲染或注入 -->
+        </div>
+
+        <!-- 台灣即時衛星雲圖底圖疊加層 (在衛星雲圖模式時顯示) -->
+        <div class="map-satellite-overlay" id="map-satellite-overlay">
+          <img id="map-satellite-img" class="map-satellite-img" src="https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-B0028-003.jpg" alt="台灣衛星雲圖疊加" />
+          <div class="sat-overlay-badge">🛰️ CWA 台灣即時彩色衛星雲圖疊加視角</div>
+        </div>
+      </div>
+
+      <!-- 台灣地勢海拔高低差圖例 (Elevation Scale) -->
+      <div class="elevation-legend glassmorphism" id="elevation-legend">
+        <div class="legend-header">
+          <span class="legend-title">🏔️ 台灣地勢高低差等高圖例</span>
+          <span class="legend-unit">海拔 (m)</span>
+        </div>
+        <div class="legend-gradient-bar"></div>
+        <div class="legend-ticks">
+          <span>0m 平原</span>
+          <span>500m 丘陵台地</span>
+          <span>1,500m 中海拔</span>
+          <span>3,000m+ 百岳</span>
+        </div>
+        <div class="legend-note">
+          <span class="note-badge">最高峰</span> 🇹🇼 玉山 3,952m · 點擊名山標記 (⛰️) 探索百岳
+        </div>
+      </div>
+
+      <!-- 山峰百岳懸停提示 (Peak Tooltip) -->
+      <div class="peak-tooltip glassmorphism" id="peak-tooltip">
+        <div class="peak-tt-header">
+          <span class="peak-tt-icon">⛰️</span>
+          <div class="peak-tt-title-box">
+            <span class="peak-tt-name" id="peak-tt-name">玉山主峰</span>
+            <span class="peak-tt-range" id="peak-tt-range">玉山山脈</span>
+          </div>
+        </div>
+        <div class="peak-tt-body">
+          <div class="peak-tt-row">
+            <span class="peak-tt-label">海拔高度：</span>
+            <span class="peak-tt-alt" id="peak-tt-alt">3,952 公尺</span>
+          </div>
+          <div class="peak-tt-desc" id="peak-tt-desc">東亞第一高峰，百岳之首，台灣氣象與地形最重要的分水嶺。</div>
         </div>
       </div>
 
@@ -263,6 +318,101 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-primary" id="btn-close-about-ok">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 中央氣象署即時衛星雲圖與雷達回波檢視器 (Satellite Modal) -->
+  <div class="modal-overlay satellite-modal-overlay" id="satellite-modal-overlay">
+    <div class="modal-box glassmorphism satellite-modal-box">
+      <div class="modal-header">
+        <div class="satellite-modal-title-box">
+          <h3 class="modal-title">🛰️ 中央氣象署即時衛星雲圖與雷達回波</h3>
+          <span class="satellite-live-pill"><span class="pulse-beacon"></span> CWA Live 即時連線</span>
+        </div>
+        <div class="satellite-header-actions">
+          <button class="btn btn-sm btn-secondary" id="btn-refresh-satellite" title="重新載入雲圖">🔄 重新整理</button>
+          <button class="modal-close-btn" id="btn-close-satellite">✕</button>
+        </div>
+      </div>
+      
+      <div class="satellite-modal-body">
+        <!-- 4 大觀測產品頻道切換頁籤 -->
+        <div class="satellite-channels-tabs" id="satellite-channels-tabs">
+          <button class="sat-tab active" data-product="taiwan_color">
+            <span class="sat-tab-icon">🇹🇼</span>
+            <div class="sat-tab-text">
+              <span class="sat-tab-name">台灣區域彩色雲圖</span>
+              <span class="sat-tab-sub">高解析 · 本島特寫</span>
+            </div>
+          </button>
+          <button class="sat-tab" data-product="east_asia_enhanced">
+            <span class="sat-tab-icon">🌏</span>
+            <div class="sat-tab-text">
+              <span class="sat-tab-name">東亞色調強化雲圖</span>
+              <span class="sat-tab-sub">大氣對流 · 鋒面低壓</span>
+            </div>
+          </button>
+          <button class="sat-tab" data-product="radar_composite">
+            <span class="sat-tab-icon">🌧️</span>
+            <div class="sat-tab-text">
+              <span class="sat-tab-name">全台雷達整合回波</span>
+              <span class="sat-tab-sub">即時降雨 · 回波強度</span>
+            </div>
+          </button>
+          <button class="sat-tab" data-product="global_ir">
+            <span class="sat-tab-icon">🌐</span>
+            <div class="sat-tab-text">
+              <span class="sat-tab-name">全球彩色紅外線</span>
+              <span class="sat-tab-sub">向日葵衛星 · 全球視角</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- 雲圖顯示舞台 -->
+        <div class="satellite-display-stage">
+          <div class="satellite-img-container" id="satellite-img-container">
+            <div class="satellite-loading" id="satellite-loading">
+              <div class="spinner"></div>
+              <p>正在載入氣象署即時高解析衛星雲圖...</p>
+            </div>
+            <img id="satellite-live-img" class="satellite-live-img" src="https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-B0028-003.jpg" alt="中央氣象署即時衛星雲圖" />
+          </div>
+
+          <!-- 雲圖資訊列 -->
+          <div class="satellite-info-bar">
+            <div class="sat-meta-item">
+              <span class="sat-meta-label">📷 產品名稱：</span>
+              <span class="sat-meta-val" id="sat-product-title">🇹🇼 台灣區域彩色衛星雲圖</span>
+            </div>
+            <div class="sat-meta-item">
+              <span class="sat-meta-label">🕒 觀測時間：</span>
+              <span class="sat-meta-val" id="sat-obs-time">載入中...</span>
+            </div>
+            <div class="sat-meta-item">
+              <span class="sat-meta-label">📦 資料集代碼：</span>
+              <span class="sat-meta-val" id="sat-dataset-id">O-B0028-003</span>
+            </div>
+          </div>
+
+          <!-- 產品判讀與色階圖例 -->
+          <div class="satellite-legend-panel" id="satellite-legend-panel">
+            <div class="sat-legend-title" id="sat-legend-title">雲層分佈與判讀指南</div>
+            <div class="sat-legend-desc" id="sat-legend-desc">
+              利用紅外線與可見光合成之真實色彩衛星雲圖，白色與亮灰色代表密集厚實之對流雲簇，淺灰色為中低層層雲，無雲晴朗區可清楚辨認陸地輪廓。
+            </div>
+            <div class="sat-scale-container" id="sat-scale-container">
+              <!-- JS 動態依產品渲染雷達 dBZ 回波圖例或雲頂溫度色階 -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer satellite-modal-footer">
+        <div class="sat-footer-hint">
+          💡 雲圖資料每 10-15 分鐘由交通部中央氣象署自動更新發布。
+        </div>
+        <button class="btn btn-primary" id="btn-close-satellite-ok">完成瀏覽</button>
       </div>
     </div>
   </div>
