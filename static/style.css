@@ -1,0 +1,1303 @@
+/* ==========================================================================
+   AIoT L3 CWA Taiwan Weather App - Immersive Island Map Theme
+   ========================================================================== */
+
+:root {
+  /* 天空與海洋主題色調 (Sky & Ocean Palette) */
+  --sky-top: #1f7bc9;
+  --sky-mid: #3895dc;
+  --sky-bottom: #52a6e8;
+  --sky-gradient: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-bottom) 100%);
+  
+  --island-land: #e2f2fc;
+  --island-land-hover: #bae6fd;
+  --island-land-active: #7dd3fc;
+  --island-stroke: #5caee0;
+  --island-stroke-hover: #0284c7;
+  --island-stroke-active: #0369a1;
+
+  --surface-glass: rgba(255, 255, 255, 0.16);
+  --surface-glass-solid: rgba(255, 255, 255, 0.92);
+  --surface-glass-card: rgba(255, 255, 255, 0.22);
+  --surface-glass-border: rgba(255, 255, 255, 0.35);
+
+  --primary-accent: #0284c7;
+  --primary-glow: rgba(56, 189, 248, 0.6);
+
+  --text-white: #ffffff;
+  --text-dark: #0f172a;
+  --text-muted: #334155;
+  --text-blue-light: #e0f2fe;
+
+  --shadow-sm: 0 4px 12px rgba(6, 40, 78, 0.14);
+  --shadow-md: 0 10px 25px -4px rgba(6, 40, 78, 0.22);
+  --shadow-lg: 0 20px 40px -8px rgba(6, 40, 78, 0.35);
+  --shadow-pin: 0 6px 14px rgba(6, 35, 68, 0.22);
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body.map-theme {
+  font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif;
+  background: var(--sky-gradient);
+  color: var(--text-white);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* 天空動態雲朵背景 (精準還原參考圖的蓬鬆雲層) */
+.sky-clouds-wrap {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.cloud {
+  position: absolute;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.18) 60%, transparent 85%);
+  border-radius: 50%;
+  filter: blur(16px);
+  animation: floatCloud 24s ease-in-out infinite alternate;
+}
+
+.cloud-top-right {
+  width: 520px;
+  height: 380px;
+  top: -80px;
+  right: -100px;
+}
+
+.cloud-bottom-right {
+  width: 600px;
+  height: 440px;
+  bottom: -60px;
+  right: -80px;
+  animation-duration: 30s;
+}
+
+.cloud-bottom-left {
+  width: 500px;
+  height: 360px;
+  bottom: 40px;
+  left: -120px;
+  animation-duration: 26s;
+}
+
+.cloud-top-left {
+  width: 400px;
+  height: 300px;
+  top: 60px;
+  left: -80px;
+  opacity: 0.6;
+}
+
+@keyframes floatCloud {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-15px) scale(1.04); }
+  100% { transform: translateY(8px) scale(0.98); }
+}
+
+/* Glassmorphism 毛玻璃通透質感 */
+.glassmorphism {
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--surface-glass-border);
+  box-shadow: var(--shadow-md);
+}
+
+/* ==========================================================================
+   頂部導覽列 (Navbar)
+   ========================================================================== */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(27, 108, 178, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 24px;
+}
+
+.nav-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.brand-icon {
+  font-size: 26px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.brand-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.brand-badge {
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-left: 6px;
+  font-weight: 600;
+}
+
+/* 時段切換膠囊按鈕 */
+.nav-period-pills {
+  display: flex;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  gap: 4px;
+}
+
+.period-pill {
+  border: none;
+  background: transparent;
+  color: var(--text-blue-light);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.period-pill:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.period-pill.active {
+  background: #ffffff;
+  color: var(--primary-accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  box-shadow: 0 0 10px #22c55e;
+  animation: pulseDot 2s infinite;
+}
+
+.status-dot.offline {
+  background-color: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.9); }
+}
+
+/* 按鈕樣式 */
+.btn {
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-smooth);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(45deg);
+}
+
+.btn-primary {
+  background: #ffffff;
+  color: var(--primary-accent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover {
+  background: #f0f9ff;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   主互動舞台：台灣島嶼氣象地圖 (一座台灣)
+   ========================================================================== */
+.map-stage-main {
+  position: relative;
+  z-index: 10;
+  min-height: calc(100vh - 65px);
+  display: flex;
+  flex-direction: column;
+}
+
+.taiwan-island-stage {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 75px);
+  min-height: 640px;
+  max-height: 1020px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* 地圖左上角浮動指引徽章 (復刻參考圖) */
+.stage-overlay-controls {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 25;
+}
+
+.overlay-period-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.overlay-period-badge:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: var(--shadow-lg);
+}
+
+.badge-arrow {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-left: 2px;
+}
+
+.overlay-hint-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(14, 60, 105, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #e0f2fe;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 地圖右上角焦點城市即時摘要卡片 (Hero Pill) */
+.selected-hero-pill {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  z-index: 25;
+  min-width: 260px;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-smooth);
+}
+
+.selected-hero-pill:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px);
+}
+
+.pill-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.pill-region {
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.pill-city {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.pill-wx-icon {
+  font-size: 1.8rem;
+}
+
+.pill-middle {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.pill-temp {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.pill-wx {
+  font-size: 0.9rem;
+  color: var(--text-blue-light);
+  font-weight: 500;
+}
+
+.pill-bottom {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.9);
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.pill-metric strong {
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   台灣 SVG 地圖容器 (Map Wrapper & SVG Styling)
+   ========================================================================== */
+.map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.map-container {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  height: 94%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.map-loading {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* SVG 本體 */
+#taiwan-map-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  filter: drop-shadow(0 14px 28px rgba(3, 30, 60, 0.32));
+  overflow: visible;
+}
+
+/* 縣市邊界路徑 (County Paths) */
+.county-path {
+  fill: var(--island-land);
+  stroke: var(--island-stroke);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  cursor: pointer;
+  transition: fill 0.22s ease, stroke 0.22s ease, filter 0.22s ease, stroke-width 0.22s ease;
+}
+
+.county-path:hover {
+  fill: var(--island-land-hover);
+  stroke: var(--island-stroke-hover);
+  stroke-width: 3.8;
+  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85));
+}
+
+.county-path.active {
+  fill: var(--island-land-active);
+  stroke: var(--island-stroke-active);
+  stroke-width: 4.2;
+}
+
+/* 縣市氣象圖示浮動標記 (Map Pins) */
+.map-pin {
+  cursor: pointer;
+  transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+}
+
+.map-pin:hover {
+  transform: scale(1.24) !important;
+}
+
+.pin-bg {
+  fill: #ffffff;
+  filter: drop-shadow(0 5px 12px rgba(6, 30, 60, 0.25));
+  transition: fill 0.2s ease, filter 0.2s ease;
+}
+
+.map-pin:hover .pin-bg {
+  fill: #f0fdf4;
+  filter: drop-shadow(0 8px 18px rgba(3, 105, 161, 0.45));
+}
+
+.pin-icon {
+  font-size: 36px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.pin-temp-text {
+  font-size: 13px;
+  font-weight: 800;
+  fill: #0369a1;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 當前選中之定位標記 (Active Location Pin Marker) */
+.active-marker {
+  pointer-events: none;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+  transition: transform 0.45s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.marker-pulse {
+  fill: rgba(2, 132, 199, 0.35);
+  animation: pulseRing 1.8s ease-out infinite;
+}
+
+@keyframes pulseRing {
+  0% { r: 18; opacity: 0.8; }
+  100% { r: 48; opacity: 0; }
+}
+
+.marker-pin-body {
+  fill: #0b1a30;
+}
+
+.marker-inner-dot {
+  fill: #ffffff;
+}
+
+/* ==========================================================================
+   懸停浮動資訊卡 (Map Tooltip: 跟隨滑鼠)
+   ========================================================================== */
+.map-tooltip {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  color: #ffffff;
+  min-width: 250px;
+  max-width: 320px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 0 20px rgba(56, 189, 248, 0.35);
+  opacity: 0;
+  transform: translate(15px, 15px) scale(0.96);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.map-tooltip.visible {
+  opacity: 1;
+  transform: translate(15px, 15px) scale(1);
+}
+
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 8px;
+}
+
+.tooltip-city-box {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tooltip-city {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.tooltip-region {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+}
+
+.tooltip-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+}
+
+.tooltip-temp-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tooltip-temp {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.tooltip-wx {
+  font-size: 0.92rem;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.tooltip-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+
+.tt-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.tt-metric-icon {
+  font-size: 1rem;
+}
+
+.tt-metric-label {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.tt-metric-val {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.tooltip-footer {
+  font-size: 0.7rem;
+  color: #38bdf8;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   點擊縣市彈出之 36 小時詳細抽屜卡片 (Detail Bottom Sheet / Drawer)
+   ========================================================================== */
+.city-detail-drawer {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  width: 90%;
+  max-width: 860px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  z-index: 50;
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(56, 189, 248, 0.25);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  opacity: 0;
+}
+
+.city-detail-drawer.open {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 12px;
+}
+
+.drawer-title-box {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.drawer-region-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.drawer-city-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.drawer-update-time {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.drawer-close-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.drawer-close-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.1);
+}
+
+.drawer-36h-periods {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.drawer-period-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: var(--transition-smooth);
+}
+
+.drawer-period-card:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-2px);
+}
+
+.drawer-period-card.current {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.d-period-time {
+  display: block;
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.d-period-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.d-period-wx {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.d-period-icon {
+  font-size: 1.5rem;
+}
+
+.d-period-temp {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.d-period-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  color: #cbd5e1;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   縣市網格清單專區 (Collapsible Cards View)
+   ========================================================================== */
+.cities-grid-section {
+  display: none; /* 預設收合，點選導覽列「縣市列表」展開 */
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 32px 24px;
+}
+
+.cities-grid-section.active {
+  display: block;
+}
+
+.grid-section-header {
+  max-width: 1440px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.grid-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.grid-subtitle {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.filter-header {
+  max-width: 1440px;
+  margin: 0 auto 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.region-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px;
+  border-radius: var(--radius-full);
+}
+
+.tab-btn {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.tab-btn.active {
+  background: #38bdf8;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 260px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  color: #94a3b8;
+}
+
+.search-wrap input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  padding: 8px 16px 8px 40px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.88rem;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.search-wrap input:focus {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.3);
+}
+
+.cities-grid {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.city-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.city-card:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #38bdf8;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.city-card.selected {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.card-city-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.card-region-tag {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+}
+
+.card-center {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card-wx-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-icon {
+  font-size: 1.6rem;
+}
+
+.card-wx-name {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+
+.card-temp {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+}
+
+/* ==========================================================================
+   對話框 (Modals)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  padding: 20px;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 520px;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.94);
+  transform: translateY(20px) scale(0.95);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-overlay.active .modal-box {
+  transform: translateY(0) scale(1);
+}
+
+.about-box {
+  max-width: 680px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 10px;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.modal-close-btn:hover {
+  color: #ffffff;
+}
+
+.modal-body {
+  margin-bottom: 20px;
+}
+
+.modal-desc {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.modal-desc code {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #94a3b8;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.input-group input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
+}
+
+.api-help {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+.api-help a {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* 關於專案樣式 */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.about-card {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.about-card h4 {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  color: #38bdf8;
+}
+
+.github-pill {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 12px;
+  background: #2563eb;
+  color: #ffffff;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+
+/* ==========================================================================
+   頁尾
+   ========================================================================== */
+.footer {
+  position: relative;
+  z-index: 10;
+  background: rgba(15, 23, 42, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 16px 24px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.footer a {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   響應式設計 (RWD)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .stage-overlay-controls {
+    top: 12px;
+    left: 14px;
+  }
+
+  .selected-hero-pill {
+    top: 12px;
+    right: 14px;
+    min-width: 200px;
+    padding: 12px 14px;
+  }
+
+  .pill-temp {
+    font-size: 1.5rem;
+  }
+
+  .pill-bottom {
+    display: none;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .drawer-36h-periods {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-period-pills {
+    display: none; /* 小螢幕使用地圖左上方按鈕 */
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    padding: 8px 14px;
+  }
+
+  .selected-hero-pill {
+    display: none; /* 手機版地圖上方簡化，點擊縣市看下方抽屜 */
+  }
+
+  .overlay-hint-pill {
+    display: none;
+  }
+
+  .city-detail-drawer {
+    width: 95%;
+    bottom: 12px;
+    padding: 16px;
+  }
+}

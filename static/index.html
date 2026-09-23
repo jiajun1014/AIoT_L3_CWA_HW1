@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台灣即時氣象互動地圖 | Taiwan Weather Map</title>
+  <meta name="description" content="結合中央氣象署 OpenData 與 FastAPI 之全台 22 縣市即時氣象互動地圖。滑鼠懸停探索各縣市天氣、降雨機率與 36 小時預報。">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="map-theme">
+
+  <!-- 天空背景動態雲朵裝飾 (與參考圖呼應的空氣感氛圍) -->
+  <div class="sky-clouds-wrap" aria-hidden="true">
+    <div class="cloud cloud-top-right"></div>
+    <div class="cloud cloud-bottom-right"></div>
+    <div class="cloud cloud-bottom-left"></div>
+    <div class="cloud cloud-top-left"></div>
+  </div>
+
+  <!-- 頂部導覽列 -->
+  <header class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="brand" id="brand-logo">
+        <span class="brand-icon">🌤️</span>
+        <div class="brand-text">
+          <span class="brand-title">Taiwan Weather</span>
+          <span class="brand-badge">即時氣象地圖</span>
+        </div>
+      </div>
+
+      <!-- 預報時段切換 (今日白天 / 今晚至明晨 / 明日白天) -->
+      <div class="nav-period-pills" id="nav-period-pills">
+        <button class="period-pill active" data-period="0" id="pill-period-0">☀️ 今日白天</button>
+        <button class="period-pill" data-period="1" id="pill-period-1">🌙 今晚至明晨</button>
+        <button class="period-pill" data-period="2" id="pill-period-2">🌤️ 明日白天</button>
+      </div>
+
+      <div class="nav-actions">
+        <div class="status-indicator" id="connection-status" title="資料來源狀態">
+          <span class="status-dot"></span>
+          <span class="status-text" id="status-text">連線中...</span>
+        </div>
+
+        <button class="btn btn-icon" id="btn-refresh" title="重新整理氣象資料">
+          🔄
+        </button>
+
+        <button class="btn btn-secondary" id="btn-toggle-grid" title="切換縣市清單檢視">
+          📊 <span>縣市列表</span>
+        </button>
+
+        <button class="btn btn-secondary" id="btn-api-modal" title="設定 CWA API 授權碼">
+          ⚙️ <span>API 設定</span>
+        </button>
+
+        <button class="btn btn-secondary" id="btn-about-modal" title="作業成果與 SDD 規格">
+          📘 <span>關於</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主要互動舞台：台灣島嶼氣象地圖 (一座台灣) -->
+  <main class="map-stage-main">
+    <section class="taiwan-island-stage" id="taiwan-stage">
+      
+      <!-- 地圖左上角浮動指引徽章 (精準復刻參考圖樣式) -->
+      <div class="stage-overlay-controls">
+        <div class="overlay-period-badge" id="overlay-period-badge">
+          <span class="badge-icon">☀️</span>
+          <span class="badge-text" id="overlay-period-text">今日白天</span>
+          <span class="badge-arrow">▾</span>
+        </div>
+        <div class="overlay-hint-pill" id="overlay-hint">
+          <span class="hint-icon">ℹ️</span>
+          <span class="hint-text">滑鼠移至縣市看天氣 · 點擊看 36H 詳細預報</span>
+        </div>
+      </div>
+
+      <!-- 地圖右上角焦點城市即時摘要卡片 (Hero Floating Card) -->
+      <div class="selected-hero-pill glassmorphism" id="selected-hero-pill">
+        <div class="pill-top">
+          <span class="pill-region" id="hero-region">北部地區</span>
+          <span class="pill-city" id="hero-city">臺北市</span>
+          <span class="pill-wx-icon" id="hero-icon">⛅</span>
+        </div>
+        <div class="pill-middle">
+          <span class="pill-temp" id="hero-temp">28°C</span>
+          <span class="pill-wx" id="hero-wx">多雲短暫陣雨</span>
+        </div>
+        <div class="pill-bottom">
+          <span class="pill-metric">💧 降雨 <strong id="hero-pop">30%</strong></span>
+          <span class="pill-metric">🌡️ 範圍 <strong id="hero-range">24°~31°</strong></span>
+          <span class="pill-metric">🧣 <strong id="hero-ci">舒適</strong></span>
+        </div>
+      </div>
+
+      <!-- 台灣 SVG 地圖容器 (向量地圖 + 氣象徽章標記 + Active 定位標記) -->
+      <div class="map-wrapper" id="map-wrapper">
+        <div class="map-container" id="map-container">
+          <!-- 載入中骨架屏 -->
+          <div class="map-loading" id="map-loading">
+            <div class="spinner"></div>
+            <p>正在載入全台即時氣象地圖...</p>
+          </div>
+          <!-- SVG 由 app.js 動態渲染或注入 -->
+        </div>
+      </div>
+
+      <!-- 滑鼠懸停浮動天氣資訊卡 (Tooltip: 跟隨滑鼠移動) -->
+      <div class="map-tooltip" id="map-tooltip">
+        <div class="tooltip-header">
+          <div class="tooltip-city-box">
+            <span class="tooltip-city" id="tt-city">臺北市</span>
+            <span class="tooltip-region" id="tt-region">北部地區</span>
+          </div>
+          <span class="tooltip-icon" id="tt-icon">⛅</span>
+        </div>
+        <div class="tooltip-body">
+          <div class="tooltip-temp-row">
+            <span class="tooltip-temp" id="tt-temp">28°C</span>
+            <span class="tooltip-wx" id="tt-wx">多雲短暫陣雨</span>
+          </div>
+          <div class="tooltip-metrics">
+            <div class="tt-metric">
+              <span class="tt-metric-icon">💧</span>
+              <span class="tt-metric-label">降雨機率</span>
+              <span class="tt-metric-val" id="tt-pop">30%</span>
+            </div>
+            <div class="tt-metric">
+              <span class="tt-metric-icon">🌡️</span>
+              <span class="tt-metric-label">氣溫範圍</span>
+              <span class="tt-metric-val" id="tt-range">24° ~ 31°</span>
+            </div>
+            <div class="tt-metric">
+              <span class="tt-metric-icon">🧣</span>
+              <span class="tt-metric-label">舒適度</span>
+              <span class="tt-metric-val" id="tt-ci">舒適至悶熱</span>
+            </div>
+          </div>
+        </div>
+        <div class="tooltip-footer">
+          <span>👉 點擊縣市鎖定並查看 36 小時趨勢</span>
+        </div>
+      </div>
+
+      <!-- 點擊縣市彈出之 36 小時詳細抽屜卡片 (Detail Bottom Sheet) -->
+      <div class="city-detail-drawer glassmorphism" id="city-detail-drawer">
+        <div class="drawer-header">
+          <div class="drawer-title-box">
+            <span class="drawer-region-tag" id="drawer-region">北部地區</span>
+            <h2 class="drawer-city-name" id="drawer-city">臺北市</h2>
+            <span class="drawer-update-time" id="drawer-update-time">最後更新：載入中</span>
+          </div>
+          <button class="drawer-close-btn" id="btn-close-drawer" title="收合詳細面板">✕</button>
+        </div>
+
+        <div class="drawer-36h-periods" id="drawer-periods-container">
+          <!-- 由 JS 渲染 3 個時段卡片 (今日白天、今晚至明晨、明日白天) -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 可展開之 22 縣市網格清單專區 (Collapsible Cards View) -->
+    <section class="cities-grid-section" id="cities-grid-section">
+      <div class="grid-section-header">
+        <div class="grid-title-wrap">
+          <h2 class="grid-title">全台 22 縣市氣象總覽</h2>
+          <p class="grid-subtitle">可依分區過濾或關鍵字快速檢索</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btn-hide-grid">▲ 收合列表</button>
+      </div>
+
+      <div class="filter-header">
+        <div class="region-tabs" id="region-tabs">
+          <button class="tab-btn active" data-region="all">全台灣 (22)</button>
+          <button class="tab-btn" data-region="north">北部</button>
+          <button class="tab-btn" data-region="central">中部</button>
+          <button class="tab-btn" data-region="south">南部</button>
+          <button class="tab-btn" data-region="east">東部</button>
+          <button class="tab-btn" data-region="islands">離島</button>
+        </div>
+
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="搜尋縣市 (例如：臺中、宜蘭)..." autocomplete="off">
+        </div>
+      </div>
+
+      <div class="cities-grid" id="cities-grid">
+        <!-- 由 JS 動態注入 22 縣市卡片 -->
+      </div>
+    </section>
+  </main>
+
+  <!-- 頁尾 -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>資料來源：<a href="https://opendata.cwa.gov.tw/" target="_blank" rel="noopener">交通部中央氣象署氣象資料開放平臺 (CWA OpenData)</a> · 預報代碼 F-C0032-001</p>
+      <p class="copyright">AIoT Course - Lesson 3 CWA Homework 1 | Spec-Driven Development (SDD) & FastAPI</p>
+    </div>
+  </footer>
+
+  <!-- API Key 設定對話框 (Modal) -->
+  <div class="modal-overlay" id="api-modal-overlay">
+    <div class="modal-box glassmorphism">
+      <div class="modal-header">
+        <h3 class="modal-title">⚙️ 中央氣象署 API 金鑰設定</h3>
+        <button class="modal-close-btn" id="btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          本系統已在伺服端 <code>.env</code> 預先配置金鑰並連線即時氣象庫。若您想臨時切換為其他測試金鑰，可在下方填入（儲存於瀏覽器 LocalStorage）。
+        </p>
+        <div class="input-group">
+          <label for="cwa-key-input">氣象署 Authorization Key：</label>
+          <input type="password" id="cwa-key-input" placeholder="例如：CWA-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
+        </div>
+        <div class="api-help">
+          💡 免費金鑰申請：前往 <a href="https://opendata.cwa.gov.tw/user/authkey" target="_blank" rel="noopener">氣象署開放平臺會員中心</a> 註冊並複製「API 授權碼」。
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-clear-key">清除前端金鑰 (還原後端)</button>
+        <button class="btn btn-primary" id="btn-save-key">儲存並即時更新</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 關於專案與 SDD 規格對話框 (About Modal) -->
+  <div class="modal-overlay" id="about-modal-overlay">
+    <div class="modal-box glassmorphism about-box">
+      <div class="modal-header">
+        <h3 class="modal-title">📘 AIoT 課程作業規格與技術棧</h3>
+        <button class="modal-close-btn" id="btn-close-about">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="about-grid">
+          <div class="about-card">
+            <h4>👨‍💻 開發者與專案資訊</h4>
+            <p><strong>專案</strong>：AIoT_L3_CWA_HW1</p>
+            <p><strong>開發者</strong>：jiajun1014</p>
+            <p><strong>架構</strong>：FastAPI + Uvicorn + CWA OpenData</p>
+            <p><strong>流程</strong>：Prompt → Spec → Code → GitHub</p>
+            <a href="https://github.com/jiajun1014/AIoT_L3_CWA_HW1" target="_blank" rel="noopener" class="github-pill">
+              GitHub 儲存庫 ↗
+            </a>
+          </div>
+          <div class="about-card">
+            <h4>📐 OpenSpec (SDD) 規格遵循</h4>
+            <p>• 完整導入 <code>openspec/specs/cwa-weather-webapp.md</code> 需求規格化。</p>
+            <p>• 智慧雙引擎容錯：即時 API 連線 <code>cwa_live</code> + 全台 22 縣市動態時間戳記備援 <code>fallback_cache</code>。</p>
+            <p>• 前端現代化：互動 SVG 台灣地圖、縣市氣象圖標浮動標記、Hover Tooltip、36 小時預報走勢。</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btn-close-about-ok">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
