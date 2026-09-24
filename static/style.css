@@ -1361,14 +1361,44 @@ body.map-theme {
    五大山脈立體浮雕、等高色彩過渡與名山百岳地標
    ========================================================================== */
 .map-mode-elevation .county-path {
-  fill: url(#island-elevation-gradient);
-  stroke: rgba(15, 23, 42, 0.55);
-  stroke-width: 2.0;
-  filter: drop-shadow(0 3px 8px rgba(12, 45, 78, 0.28));
+  fill: rgba(15, 23, 42, 0.02);
+  stroke: #ffffff;
+  stroke-width: 3.0;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.85)) drop-shadow(0 1px 3px rgba(15, 23, 42, 0.95));
+  transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+.map-mode-elevation .county-path:hover {
+  fill: rgba(56, 189, 248, 0.35) !important;
+  stroke: #38bdf8 !important;
+  stroke-width: 4.8 !important;
+  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.95)) !important;
+}
+
+.map-mode-elevation .county-path.active {
+  fill: rgba(245, 158, 11, 0.35) !important;
+  stroke: #f59e0b !important;
+  stroke-width: 5.2 !important;
+  filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.95)) !important;
 }
 
 .map-mode-elevation .county-label-text {
-  opacity: 0.35;
+  font-size: 22px;
+  font-weight: 800;
+  fill: #ffffff;
+  stroke: rgba(15, 23, 42, 0.95);
+  stroke-width: 4.5px;
+  paint-order: stroke fill;
+  opacity: 1;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.75));
+}
+
+#relief-texture-image {
+  pointer-events: none;
+  filter: contrast(1.15) saturate(1.18) drop-shadow(0 12px 28px rgba(2, 28, 56, 0.5));
+  transition: opacity 0.3s ease;
 }
 
 /* 地勢立體山脈與等高線路徑 */
@@ -2043,4 +2073,950 @@ body.map-theme {
     padding: 8px 12px;
   }
 }
+
+/* ==========================================================================
+   五大山脈立體地勢圖與地形單元專屬樣式 (Topography & Mountain Ranges)
+   ========================================================================== */
+.btn-topo-nav {
+  background: rgba(180, 83, 9, 0.4);
+  border: 1px solid rgba(251, 146, 60, 0.6);
+  color: #fed7aa;
+}
+.btn-topo-nav:hover {
+  background: rgba(234, 88, 12, 0.7);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.6);
+}
+
+.elevation-subtoggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.subtoggle-btn {
+  padding: 4px 9px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.subtoggle-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.subtoggle-btn.active {
+  background: #ea580c;
+  border-color: #fdba74;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(234, 88, 12, 0.5);
+}
+
+.subtoggle-btn.btn-highlight {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #bae6fd;
+}
+
+.subtoggle-btn.btn-highlight:hover {
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+}
+
+/* 山脈書法走向文字 (Spaced calligraphy characters along the ridge) */
+.range-spine-group {
+  cursor: pointer;
+  pointer-events: auto;
+  transition: filter 0.25s ease;
+}
+
+.range-spine-group:hover {
+  filter: drop-shadow(0 0 12px #f59e0b);
+}
+
+.range-spine-char {
+  font-family: 'Noto Serif TC', 'Songti TC', 'Biaukai', serif, system-ui;
+  font-size: 40px;
+  font-weight: 900;
+  fill: #1c1917;
+  paint-order: stroke fill;
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 6.5px;
+  stroke-linejoin: round;
+  text-anchor: middle;
+  dominant-baseline: central;
+  user-select: none;
+  transition: fill 0.2s ease, transform 0.2s ease;
+}
+
+.range-spine-group:hover .range-spine-char {
+  fill: #991b1b;
+  stroke: #fef08a;
+  stroke-width: 7.5px;
+}
+
+/* 地形單元標記 (盆地、平原、台地、丘陵、火山群) */
+.landform-group {
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.landform-group:hover {
+  transform: scale(1.18);
+}
+
+.landform-text {
+  font-size: 20px;
+  font-weight: 800;
+  fill: #064e3b;
+  paint-order: stroke fill;
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 4.5px;
+  stroke-linejoin: round;
+  text-anchor: middle;
+  dominant-baseline: central;
+  user-select: none;
+  letter-spacing: 0.5px;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.35));
+}
+
+.landform-group:hover .landform-text {
+  fill: #047857;
+  stroke: #ecfdf5;
+  stroke-width: 5.5px;
+}
+
+/* 台灣五大山脈示意圖標題橫幅 */
+.topo-map-title {
+  font-family: 'Noto Serif TC', 'Songti TC', 'Biaukai', serif, system-ui;
+  font-size: 36px;
+  font-weight: 900;
+  fill: #1e293b;
+  paint-order: stroke fill;
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 7px;
+  text-anchor: middle;
+  letter-spacing: 4px;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 山脈與地形懸停浮動 Tooltip */
+.range-tooltip {
+  position: absolute;
+  z-index: 50;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(251, 146, 60, 0.6);
+  backdrop-filter: blur(16px);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(249, 115, 22, 0.35);
+  max-width: 320px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -125%);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.range-tooltip.active {
+  opacity: 1;
+}
+
+.range-tt-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.range-tt-icon {
+  font-size: 1.6rem;
+}
+
+.range-tt-title-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.range-tt-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #fed7aa;
+}
+
+.range-tt-type {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.range-tt-meta {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fde047;
+  margin-bottom: 6px;
+}
+
+.range-tt-desc {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #e2e8f0;
+}
+
+/* ==========================================================================
+   五大山脈示意圖 Modal 對話框樣式 (Topography Modal)
+   ========================================================================== */
+.topo-modal-box {
+  max-width: 960px;
+  width: 95vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topo-modal-title-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.topo-modal-subtitle {
+  font-size: 0.78rem;
+  color: #bae6fd;
+}
+
+.topo-modal-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 12px 24px;
+  background: rgba(11, 28, 52, 0.4);
+  overflow-x: auto;
+}
+
+.topo-tab-btn {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  color: #cbd5e1;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.topo-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.topo-tab-btn.active {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: #fdba74;
+  box-shadow: 0 0 10px rgba(234, 88, 12, 0.5);
+}
+
+.topo-modal-body {
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.topo-tab-content {
+  display: none;
+  padding: 24px;
+}
+
+.topo-tab-content.active {
+  display: block;
+}
+
+/* Tab 1: 圖解 Viewer */
+.topo-diagram-viewer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.topo-img-wrap {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.topo-ref-img {
+  max-width: 100%;
+  max-height: 480px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.topo-diagram-sidebar h4 {
+  font-size: 1.1rem;
+  color: #fed7aa;
+  margin-bottom: 14px;
+}
+
+.topo-features-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+.color-ridge { color: #f97316; }
+.color-plain { color: #34d399; }
+.color-basin { color: #60a5fa; }
+.color-plateau { color: #facc15; }
+.color-volcano { color: #f43f5e; }
+
+.topo-callout {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(14, 116, 144, 0.25);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  font-size: 0.84rem;
+  color: #bae6fd;
+  line-height: 1.5;
+}
+
+/* Tab 2: 山脈 Cards */
+.ranges-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.range-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(251, 146, 60, 0.35);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.rc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rc-header h5 {
+  font-size: 1rem;
+  color: #fed7aa;
+  margin: 0;
+}
+
+.rc-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(234, 88, 12, 0.3);
+  border: 1px solid #ea580c;
+  color: #fdba74;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.rc-summary {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+.rc-meta {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Tab 3: 地形單元 Showcase */
+.landforms-showcase {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.lf-item {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.lf-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-bottom: 6px;
+}
+
+.lf-tag.plain { background: rgba(52, 211, 153, 0.2); color: #6ee7b7; border: 1px solid #34d399; }
+.lf-tag.basin { background: rgba(96, 165, 250, 0.2); color: #93c5fd; border: 1px solid #60a5fa; }
+.lf-tag.valley { background: rgba(244, 114, 182, 0.2); color: #f472b6; border: 1px solid #f472b6; }
+.lf-tag.plateau { background: rgba(250, 204, 21, 0.2); color: #fde047; border: 1px solid #facc15; }
+.lf-tag.volcano { background: rgba(244, 63, 94, 0.2); color: #fda4af; border: 1px solid #f43f5e; }
+
+.lf-item h6 {
+  font-size: 0.92rem;
+  color: #f8fafc;
+  margin-bottom: 6px;
+}
+
+.lf-item p {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+
+/* Tab 4: 氣候影響 */
+.weather-topo-insight {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.insight-box {
+  background: rgba(15, 23, 42, 0.6);
+  border-left: 4px solid #38bdf8;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 14px 18px;
+}
+
+.insight-box h5 {
+  font-size: 0.95rem;
+  color: #38bdf8;
+  margin-bottom: 6px;
+}
+
+.insight-box p {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: #e2e8f0;
+}
+
+@media (max-width: 768px) {
+  .topo-diagram-viewer,
+  .ranges-grid,
+  .landforms-showcase {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   地圖縮放平移控制列 (Map Zoom & Pan Controls)
+   ========================================================================== */
+.map-wrapper {
+  overflow: hidden;
+  user-select: none;
+}
+
+.map-wrapper.is-zoomed {
+  cursor: grab;
+}
+
+.map-wrapper.is-dragging {
+  cursor: grabbing !important;
+}
+
+.map-wrapper.is-dragging * {
+  cursor: grabbing !important;
+  pointer-events: none; /* 拖曳過程中避免觸發 path/pin hover */
+}
+
+.map-container {
+  transform-origin: center center;
+  will-change: transform;
+  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.map-container.no-transition {
+  transition: none !important;
+}
+
+/* 浮動地圖縮放工具列 */
+.map-zoom-controls {
+  position: absolute;
+  right: 28px;
+  bottom: 30px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 6px;
+  background: rgba(15, 28, 48, 0.78);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: var(--radius-full);
+  box-shadow: 0 10px 25px rgba(2, 12, 27, 0.5), 0 0 15px rgba(56, 189, 248, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.zoom-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f1f5f9;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.zoom-btn:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #ffffff;
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+.zoom-btn:active {
+  transform: scale(0.95);
+}
+
+.zoom-indicator {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+  padding: 3px 0;
+  user-select: none;
+}
+
+.zoom-btn-reset {
+  font-size: 1.15rem;
+  color: #94a3b8;
+}
+
+.zoom-btn-fullscreen {
+  font-size: 1rem;
+  color: #38bdf8;
+}
+
+/* 縮放平移提示浮標 */
+.map-zoom-tip {
+  position: absolute;
+  left: 28px;
+  bottom: 24px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(15, 28, 48, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  font-size: 0.76rem;
+  color: #94a3b8;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+
+.map-zoom-tip .tip-icon {
+  color: #38bdf8;
+}
+
+/* 全螢幕地圖模式 */
+.taiwan-island-stage.is-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 10000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  background: radial-gradient(circle at 50% 30%, #0d2847 0%, #051424 100%) !important;
+}
+
+.taiwan-island-stage.is-fullscreen .map-container {
+  max-width: 900px !important;
+  height: 96% !important;
+}
+
+/* ==========================================================================
+   中央氣象署「圖資專區」8 大核心觀測圖資 (Imagery Hub Section)
+   ========================================================================== */
+.imagery-hub-section {
+  width: 100%;
+  max-width: 1320px;
+  margin: 36px auto 44px;
+  padding: 0 24px;
+}
+
+.imagery-hub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 18px;
+}
+
+.imagery-title-decor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.imagery-section-heading {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: 1px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.imagery-heading-bar {
+  width: 58px;
+  height: 4px;
+  background: linear-gradient(90deg, #0284c7, #38bdf8);
+  border-radius: 2px;
+  margin-top: 6px;
+}
+
+.imagery-header-sub {
+  flex: 1;
+  min-width: 260px;
+  margin-left: 18px;
+}
+
+.imagery-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+}
+
+.imagery-desc {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* 8 宮格網格排版 (2 列 4 欄) */
+.imagery-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.imagery-loading-box {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  color: #94a3b8;
+  gap: 14px;
+}
+
+/* 單張 CWA 圖資卡片 */
+.cwa-cube-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  cursor: pointer;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.cwa-cube-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(2, 132, 199, 0.25), 0 0 0 2px #38bdf8;
+  border-color: #38bdf8;
+}
+
+/* 卡片頭部 (cube-head: 灰色底、俐落文字) */
+.cwa-cube-head {
+  padding: 10px 14px;
+  background: #f8fafc;
+  color: #1e293b;
+  font-size: 1.02rem;
+  font-weight: 700;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cwa-cube-head .cube-head-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cwa-cube-head .cube-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+/* 卡片內容舞台 (cube-body) */
+.cwa-cube-body {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f1f5f9;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cwa-cube-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.cwa-cube-card:hover .cwa-cube-img {
+  transform: scale(1.05);
+}
+
+/* CWA 官方氣象署圓形浮水印圖標 (左下角) */
+.cwa-watermark {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #1e40af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.cwa-watermark svg {
+  width: 18px;
+  height: 18px;
+  fill: #ffffff;
+}
+
+/* 風場預報卡片標籤 (頂部 TGFS / WRF) */
+.cwa-wind-overlay-pill {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #38bdf8;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 6;
+}
+
+/* 懸停覆蓋層 */
+.cwa-cube-hover-layer {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 105, 161, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  color: #ffffff;
+  padding: 16px;
+  text-align: center;
+}
+
+.cwa-cube-card:hover .cwa-cube-hover-layer {
+  opacity: 1;
+}
+
+.cwa-cube-hover-layer .hover-icon {
+  font-size: 1.6rem;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+}
+
+.cwa-cube-hover-layer .hover-text {
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.cwa-cube-hover-layer .hover-sub {
+  font-size: 0.74rem;
+  color: #bae6fd;
+}
+
+/* ==========================================================================
+   圖資檢視器彈窗強化 (Imagery Modal Enhancement)
+   ========================================================================== */
+.modal-zoomable-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.modal-img-zoom-bar {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(10px);
+}
+
+.modal-zoom-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-zoom-btn:hover {
+  background: #0284c7;
+  border-color: #38bdf8;
+  transform: scale(1.1);
+}
+
+.modal-zoom-val {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #38bdf8;
+  padding: 0 4px;
+}
+
+.satellite-live-iframe {
+  width: 100%;
+  height: 520px;
+  border: none;
+  border-radius: 8px;
+  background: #0b1e36;
+}
+
+.sat-source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #38bdf8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  transition: all 0.2s ease;
+}
+
+.sat-source-link:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+/* 響應式佈局適應 */
+@media (max-width: 1024px) {
+  .imagery-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .imagery-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .cwa-cube-head {
+    font-size: 0.88rem;
+    padding: 8px 10px;
+  }
+
+  .map-zoom-controls {
+    right: 14px;
+    bottom: 20px;
+  }
+  
+  .map-zoom-tip {
+    display: none;
+  }
+}
+
+
 

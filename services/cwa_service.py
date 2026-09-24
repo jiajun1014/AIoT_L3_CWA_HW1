@@ -270,56 +270,146 @@ class CWAService:
     @classmethod
     async def fetch_satellite_imagery(cls, api_key: Optional[str] = None) -> Dict[str, Any]:
         """
-        取得中央氣象署最新即時衛星雲圖與雷達回波圖
-        涵蓋台灣彩色雲圖、東亞色調強化雲圖、雷達整合回波圖與全球紅外線雲圖
+        相容舊端點：取得中央氣象署即時衛星雲圖與雷達回波
+        """
+        zone_data = await cls.fetch_imagery_zone(api_key=api_key)
+        return zone_data
+
+    @classmethod
+    async def fetch_imagery_zone(cls, api_key: Optional[str] = None) -> Dict[str, Any]:
+        """
+        取得中央氣象署「圖資專區」8 大核心觀測圖資：
+        1. 衛星 (Satellite)
+        2. 雷達 (Radar)
+        3. 雨量 (Rainfall)
+        4. 紫外線 (UVI)
+        5. 即時閃電 (Lightning)
+        6. 溫度 (Temperature)
+        7. 健康氣象 (Health Weather)
+        8. 風場預報 (Wind Forecast)
         """
         now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         
-        # 預設即時雲圖清單 (具備高可用 CDN 與備援端點)
         products = [
             {
-                "id": "taiwan_color",
-                "title": "🇹🇼 台灣區域彩色衛星雲圖",
-                "type": "satellite",
-                "tag": "推薦 · 台灣特寫",
-                "description": "中央氣象署高解析台灣周邊紅外線彩色衛星雲圖 (O-B0028-003)，能清楚辨識台灣本島與周邊積雨雲層分佈。",
-                "image_url": "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-B0028-003.jpg",
-                "backup_url": "https://www.cwa.gov.tw/Data/satellite/TWI_IR1_CR_800/TWI_IR1_CR_800.jpg",
+                "id": "satellite",
+                "title": "衛星",
+                "full_title": "🛰️ 台灣區域彩色衛星雲圖",
+                "tag": "衛星雲圖 · 雲系分佈",
+                "icon": "🛰️",
+                "type": "image",
+                "preview_url": "https://www.cwa.gov.tw/Data/satellite/LCC_TRGB_1000/LCC_TRGB_1000_forPreview.jpg",
+                "image_url": "https://www.cwa.gov.tw/Data/satellite/LCC_TRGB_1000/LCC_TRGB_1000.jpg",
+                "backup_url": "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-B0028-003.jpg",
+                "description": "中央氣象署高解析台灣周邊彩色衛星雲圖，清晰呈現台灣陸地、島嶼與對流積雨雲層分佈。",
                 "obs_time": now_str,
-                "dataset_id": "O-B0028-003"
+                "dataset_id": "O-B0028-003",
+                "link_url": "https://www.cwa.gov.tw/V8/C/W/OBS_Sat.html"
             },
             {
-                "id": "east_asia_enhanced",
-                "title": "🌏 東亞色調強化衛星雲圖",
-                "type": "satellite",
-                "tag": "大氣對流 · 颱風鋒面",
-                "description": "中央氣象署東亞紅外線色調強化雲圖 (LCC_IR1_CR_2750)，以顯目顏色標定冷雲頂與劇烈對流發展區，特別適合觀察鋒面與低壓系統。",
-                "image_url": "https://www.cwa.gov.tw/Data/satellite/LCC_IR1_CR_2750/LCC_IR1_CR_2750.jpg",
-                "backup_url": "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-B0028-002.jpg",
-                "obs_time": now_str,
-                "dataset_id": "LCC_IR1_CR_2750"
-            },
-            {
-                "id": "radar_composite",
-                "title": "🌧️ 全台雷達整合回波圖",
-                "type": "radar",
+                "id": "radar",
+                "title": "雷達",
+                "full_title": "🌧️ 全台雷達整合回波圖",
                 "tag": "即時降雨 · 回波強度",
-                "description": "中央氣象署氣象雷達即時回波圖 (O-A0058-001)，反映大氣中雨滴、雪或冰雹之反射強度 (dBZ)，數值越高代表降雨越劇烈。",
-                "image_url": "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0058-001.png",
-                "backup_url": "https://www.cwa.gov.tw/Data/radar/CV1_3600.png",
+                "icon": "🌧️",
+                "type": "image",
+                "preview_url": "https://www.cwa.gov.tw/Data/radar/CV1_TW_1000_forPreview.png",
+                "image_url": "https://www.cwa.gov.tw/Data/radar/CV1_TW_1000.png",
+                "backup_url": "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0058-001.png",
+                "description": "全台整合氣象雷達反射率回波 (dBZ)，數值越高代表降雨與水氣越劇烈。",
                 "obs_time": now_str,
-                "dataset_id": "O-A0058-001"
+                "dataset_id": "O-A0058-001",
+                "link_url": "https://www.cwa.gov.tw/V8/C/W/OBS_Radar.html"
             },
             {
-                "id": "global_ir",
-                "title": "🌐 全球彩色紅外線雲圖",
-                "type": "satellite",
-                "tag": "全視角 · 行星尺度",
-                "description": "向日葵衛星視角全球紅外線彩色雲圖 (O-B0028-001)，俯瞰整個西太平洋與亞洲大陸上空之雲系流動。",
-                "image_url": "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-B0028-001.jpg",
-                "backup_url": "https://www.cwa.gov.tw/Data/satellite/FDK_IR1_CR_1000/FDK_IR1_CR_1000.jpg",
+                "id": "rainfall",
+                "title": "雨量",
+                "full_title": "💧 今日累積雨量分佈圖",
+                "tag": "降雨熱區 · 累積量",
+                "icon": "💧",
+                "type": "image",
+                "preview_url": "https://www.cwa.gov.tw/Data/rainfall/QZJ_forPreview.jpg",
+                "image_url": "https://www.cwa.gov.tw/Data/rainfall/QZJ.jpg",
+                "backup_url": "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0040-001.jpg",
+                "description": "中央氣象署自今日 00:00 起各觀測測站日累積降雨量分佈 (毫米 mm)，即時掌握全島迎風面雨量。",
                 "obs_time": now_str,
-                "dataset_id": "O-B0028-001"
+                "dataset_id": "O-A0040-001",
+                "link_url": "https://www.cwa.gov.tw/V8/C/P/Rainfall/Rainfall_QZJ.html"
+            },
+            {
+                "id": "uvi",
+                "title": "紫外線",
+                "full_title": "☀️ 全台紫外線觀測分級圖",
+                "tag": "防曬指數 · 戶外防護",
+                "icon": "☀️",
+                "type": "image",
+                "preview_url": "https://www.cwa.gov.tw/Data/UVI/UVI_forPreview.png",
+                "image_url": "https://www.cwa.gov.tw/Data/UVI/UVI.png",
+                "backup_url": "https://www.cwa.gov.tw/Data/UVI/UVI_forPreview.png",
+                "description": "即時紫外線 UVI 指數設色分級 (低量、中量、高量、過量至危險級)，提供健康生活與出遊指引。",
+                "obs_time": now_str,
+                "dataset_id": "O-A0005-001",
+                "link_url": "https://www.cwa.gov.tw/V8/C/W/OBS_UVI.html"
+            },
+            {
+                "id": "lightning",
+                "title": "即時閃電",
+                "full_title": "⚡ 全台閃電即時偵測圖",
+                "tag": "雷電落點 · 劇烈天氣",
+                "icon": "⚡",
+                "type": "image",
+                "preview_url": "https://www.cwa.gov.tw/Data/lightning/lightning_s_forPreview.jpg",
+                "image_url": "https://www.cwa.gov.tw/Data/lightning/lightning_s.jpg",
+                "backup_url": "https://www.cwa.gov.tw/Data/lightning/lightning_s_forPreview.jpg",
+                "description": "最近 60 分鐘內台灣本島及周圍海域對地落雷與雲中放電閃電訊號即時觀測。",
+                "obs_time": now_str,
+                "dataset_id": "O-A0059-001",
+                "link_url": "https://www.cwa.gov.tw/V8/C/W/OBS_Lightning.html"
+            },
+            {
+                "id": "temperature",
+                "title": "溫度",
+                "full_title": "🌡️ 全台即時溫度分佈圖",
+                "tag": "氣溫分佈 · 溫差設色",
+                "icon": "🌡️",
+                "type": "image",
+                "preview_url": "https://www.cwa.gov.tw/Data/temperature/temp_forPreview.jpg",
+                "image_url": "https://www.cwa.gov.tw/Data/temperature/temp.jpg",
+                "backup_url": "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0038-001.jpg",
+                "description": "中央氣象署全台測站溫度即時內插等溫設色分佈圖 (攝氏 °C)，精準呈現高山與平原氣溫反差。",
+                "obs_time": now_str,
+                "dataset_id": "O-A0038-001",
+                "link_url": "https://www.cwa.gov.tw/V8/C/W/OBS_Temp.html"
+            },
+            {
+                "id": "health",
+                "title": "健康氣象",
+                "full_title": "🏥 今日熱傷害預警分級",
+                "tag": "健康預警 · 防範中暑",
+                "icon": "🏥",
+                "type": "image",
+                "preview_url": "https://www.cwa.gov.tw/Data/health/health_forPreview.png",
+                "image_url": "https://www.cwa.gov.tw/Data/health/health.png",
+                "backup_url": "https://www.cwa.gov.tw/Data/health/health_forPreview.png",
+                "description": "氣象署與衛福部合作熱傷害預警：依各縣市溫度與濕度評定注意、警戒、危險與高危險預警分級。",
+                "obs_time": now_str,
+                "dataset_id": "HEALTH-WEATHER",
+                "link_url": "https://crowa.cwa.gov.tw/HealthWeather/"
+            },
+            {
+                "id": "wind",
+                "title": "風場預報",
+                "full_title": "💨 數值風場預報 (WIFI 模擬圖)",
+                "tag": "動態風向 · 陣風流線",
+                "icon": "💨",
+                "type": "iframe",
+                "preview_url": "https://wifi.cwa.gov.tw/v2/redirect.html?lang=zh-tw",
+                "image_url": "https://wifi.cwa.gov.tw/v2/redirect.html?lang=zh-tw",
+                "iframe_url": "https://wifi.cwa.gov.tw/v2/redirect.html?lang=zh-tw",
+                "description": "中央氣象署數值風場預報 (TGFS / WRF15km / WRF3km)，動態顯示台灣陸地與周邊海面風速與風向流線。",
+                "obs_time": now_str,
+                "dataset_id": "WIFI-WIND-001",
+                "link_url": "https://wifi.cwa.gov.tw/v2/redirect.html?lang=zh-tw"
             }
         ]
 
@@ -332,14 +422,16 @@ class CWAService:
                     dt = meta.get('cwaopendata', {}).get('dataset', {}).get('ObsTime', {}).get('Datetime', '')
                     if dt:
                         formatted_time = dt.replace("T", " ")[:16]
-                        products[0]["obs_time"] = formatted_time
-                        products[1]["obs_time"] = formatted_time
+                        for p in products:
+                            if p["id"] in ["satellite", "radar"]:
+                                p["obs_time"] = formatted_time
         except Exception:
             pass
 
         return {
             "status": "success",
-            "source": "cwa_satellite_live",
+            "source": "cwa_imagery_live",
             "updated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "products": products
         }
+

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v=3">
 </head>
 <body class="map-theme">
 
@@ -51,8 +51,16 @@
           🔄
         </button>
 
+        <button class="btn btn-topo-nav" id="btn-topo-modal" title="探索台灣五大山脈立體地勢圖">
+          🏔️ <span>五大山脈</span>
+        </button>
+
+        <button class="btn btn-imagery-nav" id="btn-imagery-nav" title="前往中央氣象署圖資專區">
+          🖼️ <span>圖資專區</span>
+        </button>
+
         <button class="btn btn-satellite-nav" id="btn-satellite-modal" title="開啟中央氣象署即時衛星雲圖與雷達回波">
-          <span class="sat-live-pulse"></span>🛰️ <span>即時衛星雲圖</span>
+          <span class="sat-live-pulse"></span>🛰️ <span>衛星/雷達</span>
         </button>
 
         <button class="btn btn-secondary" id="btn-toggle-grid" title="切換縣市清單檢視">
@@ -66,6 +74,10 @@
         <button class="btn btn-secondary" id="btn-about-modal" title="作業成果與 SDD 規格">
           📘 <span>關於</span>
         </button>
+
+        <a href="https://github.com/jiajun1014/AIoT_L3_CWA_HW1" target="_blank" rel="noopener" class="btn btn-secondary nav-github-btn" title="查看 GitHub 儲存庫">
+          🐙 <span>GitHub</span>
+        </a>
       </div>
     </div>
   </header>
@@ -130,6 +142,21 @@
           <img id="map-satellite-img" class="map-satellite-img" src="https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-B0028-003.jpg" alt="台灣衛星雲圖疊加" />
           <div class="sat-overlay-badge">🛰️ CWA 台灣即時彩色衛星雲圖疊加視角</div>
         </div>
+
+        <!-- 地圖縮放與平移工具列 (Map Zoom & Pan Controls) -->
+        <div class="map-zoom-controls glassmorphism" id="map-zoom-controls" aria-label="地圖縮放工具">
+          <button class="zoom-btn" id="btn-zoom-in" title="放大地圖 (+)">➕</button>
+          <div class="zoom-indicator" id="zoom-indicator" title="目前縮放倍率">100%</div>
+          <button class="zoom-btn" id="btn-zoom-out" title="縮小地圖 (-)">➖</button>
+          <button class="zoom-btn zoom-btn-reset" id="btn-zoom-reset" title="還原原始大小 (⟲)">⟲</button>
+          <button class="zoom-btn zoom-btn-fullscreen" id="btn-map-fullscreen" title="切換地圖全螢幕 (⛶)">⛶</button>
+        </div>
+
+        <!-- 地圖縮放平移提示浮標 -->
+        <div class="map-zoom-tip" id="map-zoom-tip">
+          <span class="tip-icon">🔍</span>
+          <span class="tip-text">滾輪縮放 · 拖曳平移</span>
+        </div>
       </div>
 
       <!-- 台灣地勢海拔高低差圖例 (Elevation Scale) -->
@@ -146,7 +173,10 @@
           <span>3,000m+ 百岳</span>
         </div>
         <div class="legend-note">
-          <span class="note-badge">最高峰</span> 🇹🇼 玉山 3,952m · 點擊名山標記 (⛰️) 探索百岳
+          <span class="note-badge">最高點</span> 🇹🇼 玉山主峰 3,952m · 點擊縣市檢視各區天氣
+        </div>
+        <div class="elevation-subtoggles">
+          <button class="subtoggle-btn btn-highlight" id="btn-view-topo-diagram" title="開啟台灣五大山脈完整地勢示意圖">🔍 示意圖譜手冊</button>
         </div>
       </div>
 
@@ -223,6 +253,31 @@
 
     </section>
 
+    <!-- 中央氣象署「圖資專區」8 大核心觀測圖資 (比照官方展示截圖) -->
+    <section class="imagery-hub-section" id="imagery-hub-section">
+      <div class="imagery-hub-header">
+        <div class="imagery-title-decor">
+          <h2 class="imagery-section-heading">圖資專區</h2>
+          <div class="imagery-heading-bar"></div>
+        </div>
+        <div class="imagery-header-sub">
+          <span class="imagery-tag">CWA OBSERVATION HUB</span>
+          <p class="imagery-desc">交通部中央氣象署 8 大核心觀測圖資 · 支援點擊高解析放大檢視與動態風場模擬</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btn-refresh-imagery-hub" title="重新整理所有圖資">
+          🔄 重新整理圖資
+        </button>
+      </div>
+
+      <!-- 8 宮格圖資卡片容器 (由 JS 動態注入 8 款卡片：衛星、雷達、雨量、紫外線、即時閃電、溫度、健康氣象、風場預報) -->
+      <div class="imagery-cards-grid" id="imagery-cards-grid">
+        <div class="imagery-loading-box">
+          <div class="spinner"></div>
+          <p>正在載入中央氣象署即時圖資專區...</p>
+        </div>
+      </div>
+    </section>
+
     <!-- 可展開之 22 縣市網格清單專區 (Collapsible Cards View) -->
     <section class="cities-grid-section" id="cities-grid-section">
       <div class="grid-section-header">
@@ -260,6 +315,10 @@
     <div class="footer-content">
       <p>資料來源：<a href="https://opendata.cwa.gov.tw/" target="_blank" rel="noopener">交通部中央氣象署氣象資料開放平臺 (CWA OpenData)</a> · 預報代碼 F-C0032-001</p>
       <p class="copyright">AIoT Course - Lesson 3 CWA Homework 1 | Spec-Driven Development (SDD) & FastAPI</p>
+      <p class="footer-project-links">
+        🌐 專案站點：<a href="https://github.com/jiajun1014/AIoT_L3_CWA_HW1" target="_blank" rel="noopener">GitHub 專案原始碼</a> · 
+        <a href="http://127.0.0.1:8000" target="_blank" rel="noopener">本機 Web Site (http://127.0.0.1:8000)</a>
+      </p>
     </div>
   </footer>
 
@@ -304,9 +363,14 @@
             <p><strong>開發者</strong>：jiajun1014</p>
             <p><strong>架構</strong>：FastAPI + Uvicorn + CWA OpenData</p>
             <p><strong>流程</strong>：Prompt → Spec → Code → GitHub</p>
-            <a href="https://github.com/jiajun1014/AIoT_L3_CWA_HW1" target="_blank" rel="noopener" class="github-pill">
-              GitHub 儲存庫 ↗
-            </a>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+              <a href="https://github.com/jiajun1014/AIoT_L3_CWA_HW1" target="_blank" rel="noopener" class="github-pill">
+                GitHub 儲存庫 ↗
+              </a>
+              <a href="http://127.0.0.1:8000" target="_blank" rel="noopener" class="github-pill" style="background: rgba(56, 189, 248, 0.25); border-color: #38bdf8;">
+                🌐 Web Site ↗
+              </a>
+            </div>
           </div>
           <div class="about-card">
             <h4>📐 OpenSpec (SDD) 規格遵循</h4>
@@ -322,49 +386,228 @@
     </div>
   </div>
 
-  <!-- 中央氣象署即時衛星雲圖與雷達回波檢視器 (Satellite Modal) -->
+  <!-- 台灣五大山脈立體地勢圖導覽對話框 (Topography Modal) -->
+  <div class="modal-overlay topo-modal-overlay" id="topo-modal-overlay">
+    <div class="modal-box glassmorphism topo-modal-box">
+      <div class="modal-header">
+        <div class="topo-modal-title-box">
+          <h3 class="modal-title">🏔️ 台灣五大山脈立體地勢示意圖譜</h3>
+          <span class="topo-modal-subtitle">結合中央氣象署觀測分界與台灣自然地理五大山脈地貌</span>
+        </div>
+        <button class="modal-close-btn" id="btn-close-topo">✕</button>
+      </div>
+      <div class="topo-modal-body">
+        <!-- 導覽分頁標籤 -->
+        <div class="topo-modal-tabs">
+          <button class="topo-tab-btn active" data-tab="diagram">🗺️ 五大山脈立體地勢全圖</button>
+          <button class="topo-tab-btn" data-tab="ranges">⛰️ 五大山脈深入解說</button>
+          <button class="topo-tab-btn" data-tab="landforms">🏞️ 盆地平原與地勢單元</button>
+          <button class="topo-tab-btn" data-tab="weather">🌦️ 地形對台灣氣候影響</button>
+        </div>
+
+        <!-- Tab 1: 全圖預覽 -->
+        <div class="topo-tab-content active" id="topo-tab-diagram">
+          <div class="topo-diagram-viewer">
+            <div class="topo-img-wrap">
+              <img src="/static/images/taiwan_five_ranges_reference.png" alt="台灣五大山脈示意圖" class="topo-ref-img" />
+            </div>
+            <div class="topo-diagram-sidebar">
+              <h4>📋 示意圖圖解要點</h4>
+              <ul class="topo-features-list">
+                <li><strong class="color-ridge">五大山脈：</strong>中央山脈、雪山山脈、玉山山脈、阿里山山脈、海岸山脈（外加西部前緣之加里山山脈）。</li>
+                <li><strong class="color-plain">四大沖積平原：</strong>蘭陽平原、嘉南平原、屏東平原、花東縱谷。</li>
+                <li><strong class="color-basin">三大盆地群：</strong>台北盆地、台中盆地、埔里盆地群。</li>
+                <li><strong class="color-plateau">台地與丘陵：</strong>桃園台地、苗栗丘陵、大肚台地、八卦山脈。</li>
+                <li><strong class="color-volcano">火山地質群：</strong>大屯火山群、基隆火山群。</li>
+              </ul>
+              <div class="topo-callout">
+                💡 本平台「立體地勢」圖層已將此自然地貌 1:1 整合於互動式向量氣象地圖中，並可即時查詢全台 22 縣市天氣與百岳高山氣象！
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: 五大山脈深入解說 -->
+        <div class="topo-tab-content" id="topo-tab-ranges">
+          <div class="ranges-grid">
+            <div class="range-card">
+              <div class="rc-header">
+                <h5>中央山脈 (Central Mountain Range)</h5>
+                <span class="rc-badge">最高峰 秀姑巒山 3,805m</span>
+              </div>
+              <p class="rc-summary">台灣的「屋脊」與「脊梁山脈」，北起宜蘭蘇澳烏岩角，南抵鵝鑾鼻，全長約 340 公里。縱貫全島，是東、西河川的主要分水嶺，更在氣象上阻擋西北太平洋颱風與東北季風，有「護國神山」之稱。</p>
+              <div class="rc-meta">著名名山：秀姑巒山、南湖大山、合歡山、奇萊山、能高山</div>
+            </div>
+            <div class="range-card">
+              <div class="rc-header">
+                <h5>雪山山脈 (Xueshan Range)</h5>
+                <span class="rc-badge">最高峰 雪山主峰 3,886m</span>
+              </div>
+              <p class="rc-summary">位於中央山脈西北方，北起新北貢寮三貂角，南迄南投名間濁水溪北岸，全長約 260 公里。保留全台灣最完整的冰河圈谷地形，孕育國寶魚台灣櫻花鉤吻鮭，是北部最重要的集水區。</p>
+              <div class="rc-meta">著名名山：雪山主峰、大霸尖山、品田山、武陵四秀</div>
+            </div>
+            <div class="range-card">
+              <div class="rc-header">
+                <h5>玉山山脈 (Yushan Range)</h5>
+                <span class="rc-badge">最高峰 玉山主峰 3,952m</span>
+              </div>
+              <p class="rc-summary">全台灣地勢最高聳的山脈，東界中央山脈，西鄰阿里山山脈，北起南投濁水溪南岸，南抵高雄六龜荖濃溪。主峰高達 3,952 公尺，不僅是台灣也是東北亞最高峰。</p>
+              <div class="rc-meta">著名名山：玉山主峰、玉山東峰、玉山北峰氣象站</div>
+            </div>
+            <div class="range-card">
+              <div class="rc-header">
+                <h5>阿里山山脈 (Alishan Range)</h5>
+                <span class="rc-badge">最高峰 大塔山 2,663m</span>
+              </div>
+              <p class="rc-summary">位於玉山山脈西側，北起南投集集大山，南抵高雄燕巢雞冠山，平均高度約 1,500 至 2,500 公尺。山勢相對平緩，水氣充沛，以雲海、神木紅檜林與日出聞名於世。</p>
+              <div class="rc-meta">著名名山：大塔山、祝山、集集大山、水山</div>
+            </div>
+            <div class="range-card">
+              <div class="rc-header">
+                <h5>海岸山脈 (Coastal Mountain Range)</h5>
+                <span class="rc-badge">最高峰 新港山 1,682m</span>
+              </div>
+              <p class="rc-summary">位於花東縱谷東側、瀕臨太平洋，北起花蓮溪口，南至台東卑南溪口，長約 150 公里。屬於菲律賓海板塊碰撞歐亞板塊所隆起的火山島弧，地質年輕且斷層活動旺盛。</p>
+              <div class="rc-meta">著名名山：新港山 (麻荖漏山)、都蘭山、六十石山</div>
+            </div>
+            <div class="range-card">
+              <div class="rc-header">
+                <h5>加里山山脈 (Jiali Mountain Range)</h5>
+                <span class="rc-badge">最高峰 加里山 2,220m</span>
+              </div>
+              <p class="rc-summary">雪山山脈西側的前緣山脈（亦常歸類於雪山山脈支脈），北起鼻頭角，南迄南投集集，為台灣西部盆地平原過渡至高山帶的重要屏障，盛產柳杉、闊葉林與茶園。</p>
+              <div class="rc-meta">著名名山：加里山 (苗栗富士山)、鵝公髻山、鳥嘴山</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: 主要地形單元 -->
+        <div class="topo-tab-content" id="topo-tab-landforms">
+          <div class="landforms-showcase">
+            <div class="lf-item">
+              <span class="lf-tag plain">沖積平原</span>
+              <h6>嘉南平原、蘭陽平原、屏東平原</h6>
+              <p>河流沖積而成的廣大低平地勢，嘉南平原為台灣最大穀倉；蘭陽平原呈三角狀迎東北季風；屏東平原水源充沛、農業熱帶物產繁盛。</p>
+            </div>
+            <div class="lf-item">
+              <span class="lf-tag basin">構造盆地</span>
+              <h6>台北盆地、台中盆地、埔里盆地群</h6>
+              <p>四周高山環抱、中央陷落之構造窪地。台北盆地為淡水河三大支流交會處；台中盆地氣候溫和；埔里盆地群為山中明珠。</p>
+            </div>
+            <div class="lf-item">
+              <span class="lf-tag valley">斷層縱谷</span>
+              <h6>花東縱谷 (Huatung Valley)</h6>
+              <p>夾於中央山脈與海岸山脈之間的狹長構造縱谷，為兩大板塊碰撞縫合線，全長約 150 公里，景致壯麗、稻米之鄉。</p>
+            </div>
+            <div class="lf-item">
+              <span class="lf-tag plateau">台地丘陵</span>
+              <h6>桃園台地、苗栗丘陵、大肚台地、八卦山脈</h6>
+              <p>古沖積扇隆起與侵蝕切割地形，遍布茶園、梯田、果樹林與埤塘景觀。</p>
+            </div>
+            <div class="lf-item">
+              <span class="lf-tag volcano">火山群</span>
+              <h6>大屯火山群、基隆火山群</h6>
+              <p>台灣北部代表性火山地質，具噴氣孔、硫磺溫泉與火山錐地質特色。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: 地形對氣候影響 -->
+        <div class="topo-tab-content" id="topo-tab-weather">
+          <div class="weather-topo-insight">
+            <div class="insight-box">
+              <h5>🛡️ 護國神山效應 (Typhoon Barrier)</h5>
+              <p>中央山脈平均標高超過 3,000 公尺，強烈颱風由東向西侵襲時，受到高聳山脈物理阻擋與破壞，常使颱風低層環流結構重組、中心分裂或迅速減弱，大幅減輕台灣西部平原都會區風雨災害。</p>
+            </div>
+            <div class="insight-box">
+              <h5>🌧️ 地形雨與季風雨影 (Orographic Rain & Shadow)</h5>
+              <p>冬季東北季風受雪山與中央山脈抬升，基隆、宜蘭與北部山區多陰雨；背風面之中南部則晴朗少雨形成乾季。夏季西南氣流則在南部迎風坡帶來豪大雨。</p>
+            </div>
+            <div class="insight-box">
+              <h5>🔥 焚風現象 (Foehn Wind)</h5>
+              <p>當颱風或氣流過山下沉時，空氣沿背風坡迅速升溫乾燥（乾絕熱直減率 10°C/km），常在台東（大武、成功）甚至新竹苗栗引發破 38°C 的極端高溫焚風。</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer topo-modal-footer">
+        <button class="btn btn-primary" id="btn-close-topo-ok">返回氣象地圖</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 中央氣象署即時圖資專區高解析檢視器 (Imagery Modal) -->
   <div class="modal-overlay satellite-modal-overlay" id="satellite-modal-overlay">
     <div class="modal-box glassmorphism satellite-modal-box">
       <div class="modal-header">
         <div class="satellite-modal-title-box">
-          <h3 class="modal-title">🛰️ 中央氣象署即時衛星雲圖與雷達回波</h3>
+          <h3 class="modal-title" id="imagery-modal-title">🖼️ 中央氣象署即時圖資專區</h3>
           <span class="satellite-live-pill"><span class="pulse-beacon"></span> CWA Live 即時連線</span>
         </div>
         <div class="satellite-header-actions">
-          <button class="btn btn-sm btn-secondary" id="btn-refresh-satellite" title="重新載入雲圖">🔄 重新整理</button>
+          <button class="btn btn-sm btn-secondary" id="btn-refresh-satellite" title="重新載入當前圖資">🔄 重新整理</button>
           <button class="modal-close-btn" id="btn-close-satellite">✕</button>
         </div>
       </div>
       
       <div class="satellite-modal-body">
-        <!-- 4 大觀測產品頻道切換頁籤 -->
+        <!-- 8 大觀測產品頻道切換頁籤 -->
         <div class="satellite-channels-tabs" id="satellite-channels-tabs">
-          <button class="sat-tab active" data-product="taiwan_color">
-            <span class="sat-tab-icon">🇹🇼</span>
+          <button class="sat-tab active" data-product="satellite">
+            <span class="sat-tab-icon">🛰️</span>
             <div class="sat-tab-text">
-              <span class="sat-tab-name">台灣區域彩色雲圖</span>
-              <span class="sat-tab-sub">高解析 · 本島特寫</span>
+              <span class="sat-tab-name">衛星</span>
+              <span class="sat-tab-sub">彩色雲圖</span>
             </div>
           </button>
-          <button class="sat-tab" data-product="east_asia_enhanced">
-            <span class="sat-tab-icon">🌏</span>
-            <div class="sat-tab-text">
-              <span class="sat-tab-name">東亞色調強化雲圖</span>
-              <span class="sat-tab-sub">大氣對流 · 鋒面低壓</span>
-            </div>
-          </button>
-          <button class="sat-tab" data-product="radar_composite">
+          <button class="sat-tab" data-product="radar">
             <span class="sat-tab-icon">🌧️</span>
             <div class="sat-tab-text">
-              <span class="sat-tab-name">全台雷達整合回波</span>
-              <span class="sat-tab-sub">即時降雨 · 回波強度</span>
+              <span class="sat-tab-name">雷達</span>
+              <span class="sat-tab-sub">合成回波</span>
             </div>
           </button>
-          <button class="sat-tab" data-product="global_ir">
-            <span class="sat-tab-icon">🌐</span>
+          <button class="sat-tab" data-product="rainfall">
+            <span class="sat-tab-icon">💧</span>
             <div class="sat-tab-text">
-              <span class="sat-tab-name">全球彩色紅外線</span>
-              <span class="sat-tab-sub">向日葵衛星 · 全球視角</span>
+              <span class="sat-tab-name">雨量</span>
+              <span class="sat-tab-sub">日累積量</span>
+            </div>
+          </button>
+          <button class="sat-tab" data-product="uvi">
+            <span class="sat-tab-icon">☀️</span>
+            <div class="sat-tab-text">
+              <span class="sat-tab-name">紫外線</span>
+              <span class="sat-tab-sub">指數分級</span>
+            </div>
+          </button>
+          <button class="sat-tab" data-product="lightning">
+            <span class="sat-tab-icon">⚡</span>
+            <div class="sat-tab-text">
+              <span class="sat-tab-name">即時閃電</span>
+              <span class="sat-tab-sub">落雷偵測</span>
+            </div>
+          </button>
+          <button class="sat-tab" data-product="temperature">
+            <span class="sat-tab-icon">🌡️</span>
+            <div class="sat-tab-text">
+              <span class="sat-tab-name">溫度</span>
+              <span class="sat-tab-sub">即時氣溫</span>
+            </div>
+          </button>
+          <button class="sat-tab" data-product="health">
+            <span class="sat-tab-icon">🏥</span>
+            <div class="sat-tab-text">
+              <span class="sat-tab-name">健康氣象</span>
+              <span class="sat-tab-sub">熱傷害預警</span>
+            </div>
+          </button>
+          <button class="sat-tab" data-product="wind">
+            <span class="sat-tab-icon">💨</span>
+            <div class="sat-tab-text">
+              <span class="sat-tab-name">風場預報</span>
+              <span class="sat-tab-sub">數值模擬</span>
             </div>
           </button>
         </div>
@@ -374,30 +617,50 @@
           <div class="satellite-img-container" id="satellite-img-container">
             <div class="satellite-loading" id="satellite-loading">
               <div class="spinner"></div>
-              <p>正在載入氣象署即時高解析衛星雲圖...</p>
+              <p>正在載入氣象署即時高解析圖資...</p>
             </div>
-            <img id="satellite-live-img" class="satellite-live-img" src="https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-B0028-003.jpg" alt="中央氣象署即時衛星雲圖" />
+            
+            <!-- 圖片檢視模式 -->
+            <div class="modal-zoomable-img-wrap" id="modal-zoomable-img-wrap">
+              <img id="satellite-live-img" class="satellite-live-img" src="https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-B0028-003.jpg" alt="中央氣象署即時圖資" />
+            </div>
+
+            <!-- 風場預報 iframe 互動模式 -->
+            <iframe id="satellite-live-iframe" class="satellite-live-iframe" src="" title="中央氣象署風場預報" style="display: none;"></iframe>
+
+            <!-- 彈窗圖片縮放控制列 -->
+            <div class="modal-img-zoom-bar" id="modal-img-zoom-bar">
+              <button class="modal-zoom-btn" id="btn-modal-zoom-in" title="放大 (+)">➕</button>
+              <span class="modal-zoom-val" id="modal-zoom-val">100%</span>
+              <button class="modal-zoom-btn" id="btn-modal-zoom-out" title="縮小 (-)">➖</button>
+              <button class="modal-zoom-btn" id="btn-modal-zoom-reset" title="還原 (⟲)">⟲</button>
+            </div>
           </div>
 
           <!-- 雲圖資訊列 -->
           <div class="satellite-info-bar">
             <div class="sat-meta-item">
               <span class="sat-meta-label">📷 產品名稱：</span>
-              <span class="sat-meta-val" id="sat-product-title">🇹🇼 台灣區域彩色衛星雲圖</span>
+              <span class="sat-meta-val" id="sat-product-title">🛰️ 台灣區域彩色衛星雲圖</span>
             </div>
             <div class="sat-meta-item">
               <span class="sat-meta-label">🕒 觀測時間：</span>
               <span class="sat-meta-val" id="sat-obs-time">載入中...</span>
             </div>
             <div class="sat-meta-item">
-              <span class="sat-meta-label">📦 資料集代碼：</span>
+              <span class="sat-meta-label">📦 資料代碼：</span>
               <span class="sat-meta-val" id="sat-dataset-id">O-B0028-003</span>
+            </div>
+            <div class="sat-meta-item">
+              <a href="https://www.cwa.gov.tw/V8/C/W/OBS_Sat.html" target="_blank" rel="noopener" class="sat-source-link" id="sat-source-link">
+                🔗 氣象署原始網頁 ↗
+              </a>
             </div>
           </div>
 
           <!-- 產品判讀與色階圖例 -->
           <div class="satellite-legend-panel" id="satellite-legend-panel">
-            <div class="sat-legend-title" id="sat-legend-title">雲層分佈與判讀指南</div>
+            <div class="sat-legend-title" id="sat-legend-title">圖資判讀指南</div>
             <div class="sat-legend-desc" id="sat-legend-desc">
               利用紅外線與可見光合成之真實色彩衛星雲圖，白色與亮灰色代表密集厚實之對流雲簇，淺灰色為中低層層雲，無雲晴朗區可清楚辨認陸地輪廓。
             </div>
@@ -410,13 +673,13 @@
 
       <div class="modal-footer satellite-modal-footer">
         <div class="sat-footer-hint">
-          💡 雲圖資料每 10-15 分鐘由交通部中央氣象署自動更新發布。
+          💡 圖資每 10-15 分鐘由交通部中央氣象署自動更新發布。
         </div>
         <button class="btn btn-primary" id="btn-close-satellite-ok">完成瀏覽</button>
       </div>
     </div>
   </div>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v=4"></script>
 </body>
 </html>

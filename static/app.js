@@ -92,6 +92,126 @@
     }
   ];
 
+  // 台灣五大山脈 + 加里山山脈走向與書法標記資料庫
+  const TAIWAN_RANGES = [
+    {
+      id: 'central',
+      name: '中央山脈',
+      fullName: '中央山脈 (Central Mountain Range)',
+      peak: '秀姑巒山 3,805m',
+      length: '約 340 km',
+      desc: '台灣「屋脊」與「護國神山」，北起蘇澳烏岩角，南抵鵝鑾鼻，縱貫全島，阻擋西北太平洋颱風與東北季風。',
+      color: 'rgba(220, 38, 38, 0.9)',
+      chars: [
+        { char: '中', x: 1150, y: 610 },
+        { char: '央', x: 1060, y: 930 },
+        { char: '山', x: 1020, y: 1160 },
+        { char: '脈', x: 970, y: 1370 },
+        { char: '脈', x: 860, y: 1850 }
+      ],
+      pathD: 'M 1210 470 Q 1140 640 1080 840 Q 1040 1050 1000 1260 Q 930 1500 880 1720 Q 860 1850 850 1920'
+    },
+    {
+      id: 'xueshan',
+      name: '雪山山脈',
+      fullName: '雪山山脈 (Xueshan Range)',
+      peak: '雪山主峰 3,886m',
+      length: '約 260 km',
+      desc: '保留全台灣最完整之冰河圈谷地形，孕育國寶魚櫻花鉤吻鮭，為北台灣重要集水區。',
+      color: 'rgba(234, 88, 12, 0.88)',
+      chars: [
+        { char: '雪', x: 1160, y: 360 },
+        { char: '山', x: 1090, y: 480 },
+        { char: '山', x: 1010, y: 600 },
+        { char: '脈', x: 940, y: 710 }
+      ],
+      pathD: 'M 1190 350 Q 1110 480 1020 610 Q 950 710 880 790'
+    },
+    {
+      id: 'jiali',
+      name: '加里山山脈',
+      fullName: '加里山山脈 (Jiali Mountain Range)',
+      peak: '加里山 2,220m',
+      length: '約 180 km',
+      desc: '雪山山脈西側的前緣山脈，為西部盆地平原過渡至高山帶之重要屏障，林相茂密。',
+      color: 'rgba(217, 119, 6, 0.85)',
+      chars: [
+        { char: '加', x: 1030, y: 370 },
+        { char: '里', x: 970, y: 470 },
+        { char: '山', x: 910, y: 570 },
+        { char: '山', x: 860, y: 670 },
+        { char: '脈', x: 810, y: 760 }
+      ],
+      pathD: 'M 1040 360 Q 980 470 920 570 Q 865 670 810 760'
+    },
+    {
+      id: 'yushan',
+      name: '玉山山脈',
+      fullName: '玉山山脈 (Yushan Range)',
+      peak: '玉山主峰 3,952m (東北亞最高峰)',
+      length: '約 180 km',
+      desc: '全台灣地勢最高聳的山脈，東鄰中央山脈、西鄰阿里山山脈，高聳入雲，為台灣標誌地標。',
+      color: 'rgba(185, 28, 28, 0.9)',
+      chars: [
+        { char: '玉', x: 940, y: 1100 },
+        { char: '山', x: 900, y: 1220 },
+        { char: '山', x: 860, y: 1350 },
+        { char: '脈', x: 810, y: 1470 }
+      ],
+      pathD: 'M 960 1060 Q 910 1200 870 1360 Q 820 1480 790 1560'
+    },
+    {
+      id: 'alishan',
+      name: '阿里山山脈',
+      fullName: '阿里山山脈 (Alishan Range)',
+      peak: '大塔山 2,663m',
+      length: '約 250 km',
+      desc: '位於玉山山脈西側，水氣豐沛，以神木紅檜林、日出、阿里山森林鐵路與壯麗雲海聞名。',
+      color: 'rgba(194, 65, 12, 0.85)',
+      chars: [
+        { char: '阿', x: 840, y: 1045 },
+        { char: '里', x: 805, y: 1165 },
+        { char: '山', x: 770, y: 1285 },
+        { char: '山', x: 735, y: 1405 },
+        { char: '脈', x: 700, y: 1520 }
+      ],
+      pathD: 'M 850 1020 Q 810 1150 770 1280 Q 730 1410 690 1540'
+    },
+    {
+      id: 'coastal',
+      name: '海岸山脈',
+      fullName: '海岸山脈 (Coastal Mountain Range)',
+      peak: '新港山 1,682m',
+      length: '約 150 km',
+      desc: '位於花東縱谷東側、瀕臨太平洋，由菲律賓海板塊碰撞擠壓形成之火山島弧，地質年輕且斷層顯著。',
+      color: 'rgba(180, 83, 9, 0.85)',
+      chars: [
+        { char: '海', x: 1210, y: 880 },
+        { char: '岸', x: 1170, y: 1060 },
+        { char: '山', x: 1130, y: 1240 },
+        { char: '脈', x: 1090, y: 1420 }
+      ],
+      pathD: 'M 1230 840 Q 1180 1040 1140 1230 Q 1100 1420 1070 1500'
+    }
+  ];
+
+  // 台灣主要地形單元 (盆地、平原、台地、丘陵、火山群)
+  const TAIWAN_LANDFORMS = [
+    { id: 'datun', name: '大屯火山群', type: '火山地質群', x: 1140, y: 110, desc: '台灣北部休火山群，包含七星山與大屯山，具溫泉地熱與後火山地形。' },
+    { id: 'keelung_volcano', name: '基隆火山群', type: '火山地質群', x: 1290, y: 160, desc: '包含基隆山、金瓜石、九份地質區，曾為世界級金銅礦產地。' },
+    { id: 'taipei_basin', name: '台北盆地', type: '構造盆地', x: 1110, y: 220, desc: '淡水河三大支流交會之斷層陷落盆地，為台灣政治經濟核心。' },
+    { id: 'taoyuan_plateau', name: '桃園台地', type: '構造台地', x: 950, y: 260, desc: '古石門溪沖積扇隆起之紅土台地，遍布人工埤塘。' },
+    { id: 'miaoli_hills', name: '苗栗丘陵', type: '丘陵地形', x: 810, y: 480, desc: '後龍溪侵蝕分割之起伏丘陵，林相與茶園茂密之客庄山城。' },
+    { id: 'lanyang_plain', name: '蘭陽平原', type: '沖積平原', x: 1290, y: 420, desc: '蘭陽溪沖積三角形平原，迎東北季風迎雨豐沛，稻作富庶。' },
+    { id: 'dadu_plateau', name: '大肚台地', type: '構造台地', x: 690, y: 680, desc: '台中盆地與海岸平原間狹長台地，俯瞰台灣海峽。' },
+    { id: 'taichung_basin', name: '台中盆地', type: '構造盆地', x: 770, y: 770, desc: '大甲溪與大肚溪沖積而成，氣候溫和乾燥，中部重鎮。' },
+    { id: 'bagua_range', name: '八卦山脈', type: '台地/山脈', x: 720, y: 920, desc: '彰化與南投之分界脊嶺，南北延伸三十餘公里，名產鳳梨與茶葉。' },
+    { id: 'puli_basin', name: '埔里盆地群', type: '高山盆地群', x: 930, y: 860, desc: '烏溪上游高山盆地群，四面環山氣候宜人，為進入日月潭與合歡山門戶。' },
+    { id: 'huatung_valley', name: '花東縱谷', type: '構造縱谷', x: 1140, y: 1180, desc: '夾於中央山脈與海岸山脈間之板塊縫合線，景致壯麗。' },
+    { id: 'chianan_plain', name: '嘉南平原', type: '沖積平原', x: 530, y: 1280, desc: '台灣最大平原農業穀倉，由曾文溪、濁水溪沖積而成。' },
+    { id: 'pingtung_plain', name: '屏東平原', type: '沖積平原', x: 680, y: 1700, desc: '高屏溪沖積而成之廣闊平原，熱帶果物繁盛。' }
+  ];
+
   // 台灣各縣市分區對照表
   const COUNTY_REGIONS = {
     '基隆市': 'north', '臺北市': 'north', '台北市': 'north', '新北市': 'north', '桃園市': 'north', '新竹市': 'north', '新竹縣': 'north', '苗栗縣': 'north',
@@ -112,7 +232,22 @@
     apiKey: localStorage.getItem('cwa_api_key') || '',
     activeLayer: 'elevation', // 'elevation' | 'admin' | 'weather' | 'satellite'
     satelliteProducts: [],
-    activeSatelliteProduct: 'taiwan_color'
+    activeSatelliteProduct: 'satellite',
+    imageryProducts: [],
+    showReliefTexture: true,
+    showMountainRanges: true,
+    showLandforms: true,
+    showSummits: true,
+    // 地圖縮放與平移狀態
+    mapZoom: 1.0,
+    mapPanX: 0,
+    mapPanY: 0,
+    isMapDragging: false,
+    mapDragStartX: 0,
+    mapDragStartY: 0,
+    mapHasDragged: false,
+    isMapFullscreen: false,
+    modalImgZoom: 1.0
   };
 
   // DOM 元素快取
@@ -126,9 +261,12 @@
     btnApiModal: document.getElementById('btn-api-modal'),
     btnAboutModal: document.getElementById('btn-about-modal'),
     btnSatelliteModal: document.getElementById('btn-satellite-modal'),
+    btnTopoModal: document.getElementById('btn-topo-modal'),
+    btnImageryNav: document.getElementById('btn-imagery-nav'),
     navPeriodPills: document.getElementById('nav-period-pills'),
     // 地圖舞台與圖層切換
     taiwanStage: document.getElementById('taiwan-stage'),
+    mapWrapper: document.getElementById('map-wrapper'),
     mapContainer: document.getElementById('map-container'),
     mapLoading: document.getElementById('map-loading'),
     overlayPeriodBadge: document.getElementById('overlay-period-badge'),
@@ -137,12 +275,36 @@
     elevationLegend: document.getElementById('elevation-legend'),
     mapSatelliteOverlay: document.getElementById('map-satellite-overlay'),
     mapSatelliteImg: document.getElementById('map-satellite-img'),
+    // 地圖縮放控制項
+    mapZoomControls: document.getElementById('map-zoom-controls'),
+    btnZoomIn: document.getElementById('btn-zoom-in'),
+    btnZoomOut: document.getElementById('btn-zoom-out'),
+    btnZoomReset: document.getElementById('btn-zoom-reset'),
+    btnMapFullscreen: document.getElementById('btn-map-fullscreen'),
+    zoomIndicator: document.getElementById('zoom-indicator'),
+    mapZoomTip: document.getElementById('map-zoom-tip'),
+    // 五大山脈次切換開關與圖譜
+    toggleReliefTexture: document.getElementById('toggle-relief-texture'),
+    toggleMountainRanges: document.getElementById('toggle-mountain-ranges'),
+    toggleLandforms: document.getElementById('toggle-landforms'),
+    toggleSummits: document.getElementById('toggle-summits'),
+    btnViewTopoDiagram: document.getElementById('btn-view-topo-diagram'),
+    topoModalOverlay: document.getElementById('topo-modal-overlay'),
+    btnCloseTopo: document.getElementById('btn-close-topo'),
+    btnCloseTopoOk: document.getElementById('btn-close-topo-ok'),
     // 百岳山峰提示卡
     peakTooltip: document.getElementById('peak-tooltip'),
     peakTtName: document.getElementById('peak-tt-name'),
     peakTtRange: document.getElementById('peak-tt-range'),
     peakTtAlt: document.getElementById('peak-tt-alt'),
     peakTtDesc: document.getElementById('peak-tt-desc'),
+    // 山脈與地形提示卡
+    rangeTooltip: document.getElementById('range-tooltip'),
+    rangeTtIcon: document.getElementById('range-tt-icon'),
+    rangeTtName: document.getElementById('range-tt-name'),
+    rangeTtType: document.getElementById('range-tt-type'),
+    rangeTtMeta: document.getElementById('range-tt-meta'),
+    rangeTtDesc: document.getElementById('range-tt-desc'),
     // 懸停 Tooltip
     tooltip: document.getElementById('map-tooltip'),
     ttCity: document.getElementById('tt-city'),
@@ -169,26 +331,38 @@
     drawerUpdateTime: document.getElementById('drawer-update-time'),
     drawerPeriodsContainer: document.getElementById('drawer-periods-container'),
     btnCloseDrawer: document.getElementById('btn-close-drawer'),
+    // 圖資專區 (8 大卡片)
+    imageryHubSection: document.getElementById('imagery-hub-section'),
+    imageryCardsGrid: document.getElementById('imagery-cards-grid'),
+    btnRefreshImageryHub: document.getElementById('btn-refresh-imagery-hub'),
     // 網格檢視
     gridSection: document.getElementById('cities-grid-section'),
     regionTabs: document.getElementById('region-tabs'),
     searchInput: document.getElementById('search-input'),
     citiesGrid: document.getElementById('cities-grid'),
-    // 衛星雲圖 Modal
+    // 衛星雲圖 / 圖資 Modal
     satelliteModal: document.getElementById('satellite-modal-overlay'),
     btnCloseSatellite: document.getElementById('btn-close-satellite'),
     btnCloseSatelliteOk: document.getElementById('btn-close-satellite-ok'),
     btnRefreshSatellite: document.getElementById('btn-refresh-satellite'),
     satelliteChannelsTabs: document.getElementById('satellite-channels-tabs'),
     satelliteLiveImg: document.getElementById('satellite-live-img'),
+    satelliteLiveIframe: document.getElementById('satellite-live-iframe'),
+    modalZoomableImgWrap: document.getElementById('modal-zoomable-img-wrap'),
     satelliteLoading: document.getElementById('satellite-loading'),
     satProductTitle: document.getElementById('sat-product-title'),
     satObsTime: document.getElementById('sat-obs-time'),
     satDatasetId: document.getElementById('sat-dataset-id'),
+    satSourceLink: document.getElementById('sat-source-link'),
     satelliteLegendPanel: document.getElementById('satellite-legend-panel'),
     satLegendTitle: document.getElementById('sat-legend-title'),
     satLegendDesc: document.getElementById('sat-legend-desc'),
     satScaleContainer: document.getElementById('sat-scale-container'),
+    // 彈窗圖片縮放列
+    btnModalZoomIn: document.getElementById('btn-modal-zoom-in'),
+    btnModalZoomOut: document.getElementById('btn-modal-zoom-out'),
+    btnModalZoomReset: document.getElementById('btn-modal-zoom-reset'),
+    modalZoomVal: document.getElementById('modal-zoom-val'),
     // API & 關於 Modals
     apiModal: document.getElementById('api-modal-overlay'),
     btnCloseModal: document.getElementById('btn-close-modal'),
@@ -273,11 +447,11 @@
           </linearGradient>
         </defs>
 
-        <!-- 1. 縣市陸地路徑圖層 (清晰界線) -->
-        <g id="counties-layer" filter="url(#island-shadow)"></g>
-
-        <!-- 2. 台灣五大山脈 3D 立體地勢浮雕圖層 (Elevation Relief) -->
+        <!-- 1. 台灣 3D 立體地勢真實浮雕底圖 (置於縣市界線底層) -->
         <g id="topography-layer"></g>
+
+        <!-- 2. 縣市陸地路徑圖層 (清晰界線，疊加於地勢浮雕之上) -->
+        <g id="counties-layer" filter="url(#island-shadow)"></g>
 
         <!-- 3. 縣市名稱文字標籤圖層 -->
         <g id="county-labels-layer"></g>
@@ -338,78 +512,19 @@
           elem.addEventListener('mouseenter', e => handleMapEnter(e, cname));
           elem.addEventListener('mousemove', handleMapMove);
           elem.addEventListener('mouseleave', handleMapLeave);
-          elem.addEventListener('click', () => selectCity(cname));
+          elem.addEventListener('click', () => {
+            if (state.mapHasDragged) return;
+            selectCity(cname);
+          });
         });
       });
 
-      // 渲染台灣五大山脈立體地勢浮雕 (中央山脈、雪山、玉山、阿里山、海岸山脈)
+      // 渲染台灣 3D 立體地勢真實浮雕底圖 (已去除地圖文字與山脈線條，呈現純淨自然地形)
       topographyLayer.innerHTML = `
-        <!-- 山脈基底地形陰影 (Shaded Relief Base) -->
-        <g class="topography-shadows" filter="url(#mountain-blur)">
-          <path class="mountain-shadow" d="M 1190 470 Q 1120 600 1060 840 Q 995 1100 970 1360 Q 865 1630 780 1860" stroke-width="56" />
-          <path class="mountain-shadow" d="M 1130 370 Q 1050 530 990 660 Q 930 750 880 790" stroke-width="40" />
-          <path class="mountain-shadow" d="M 940 1090 Q 895 1220 845 1380" stroke-width="45" />
-          <path class="mountain-shadow" d="M 830 1050 Q 800 1160 760 1340" stroke-width="34" />
-          <path class="mountain-shadow" d="M 1220 830 Q 1160 1100 1085 1450" stroke-width="30" />
+        <g id="relief-texture-group">
+          <image id="relief-texture-image" href="/static/images/taiwan_relief_clean_hd.png" x="280.7" y="51.1" width="1212.6" height="2160.2" preserveAspectRatio="none" style="pointer-events: none;" />
         </g>
-
-        <!-- 立體山脈脊線 (Mountain Ridge Backbone & Crest) -->
-        <g class="topography-ridges">
-          <!-- 中央山脈主脊 -->
-          <path class="mountain-ridge ridge-backbone" d="M 1190 470 Q 1120 600 1060 840 Q 995 1100 970 1360 Q 865 1630 780 1860" />
-          <path class="mountain-ridge ridge-crest" d="M 1190 470 Q 1120 600 1060 840 Q 995 1100 970 1360 Q 865 1630 780 1860" />
-
-          <!-- 雪山山脈 -->
-          <path class="mountain-ridge ridge-backbone" d="M 1130 370 Q 1050 530 990 660 Q 930 750 880 790" stroke-width="12" />
-          <path class="mountain-ridge ridge-crest" d="M 1130 370 Q 1050 530 990 660 Q 930 750 880 790" stroke-width="4.0" />
-
-          <!-- 玉山山脈群 -->
-          <path class="mountain-ridge ridge-backbone" d="M 940 1090 Q 895 1220 845 1380" stroke-width="14" />
-          <path class="mountain-ridge ridge-crest" d="M 940 1090 Q 895 1220 845 1380" stroke-width="4.5" />
-
-          <!-- 阿里山山脈 -->
-          <path class="mountain-ridge ridge-backbone" d="M 830 1050 Q 800 1160 760 1340" stroke-width="9" stroke="rgba(194, 65, 12, 0.8)" />
-          <path class="mountain-ridge ridge-crest" d="M 830 1050 Q 800 1160 760 1340" stroke-width="2.8" />
-
-          <!-- 海岸山脈 -->
-          <path class="mountain-ridge ridge-backbone" d="M 1220 830 Q 1160 1100 1085 1450" stroke-width="8" stroke="rgba(180, 83, 9, 0.75)" />
-          <path class="mountain-ridge ridge-crest" d="M 1220 830 Q 1160 1100 1085 1450" stroke-width="2.8" />
-        </g>
-
-        <!-- 山脈地理標示文字 -->
-        <g class="topography-range-labels">
-          <text class="range-label" x="970" y="520">雪山山脈</text>
-          <text class="range-label" x="1090" y="990">中央山脈</text>
-          <text class="range-label" x="840" y="1280">玉山山脈</text>
-          <text class="range-label" x="720" y="1170">阿里山脈</text>
-          <text class="range-label" x="1155" y="1190">海岸山脈</text>
-        </g>
-
-        <!-- 名山百岳地標群 (Summit Pins) -->
-        <g class="topography-summits" id="summits-group"></g>
       `;
-
-      // 注入名山百岳 Summit Pins
-      const summitsGroup = topographyLayer.querySelector('#summits-group');
-      TAIWAN_SUMMITS.forEach(summit => {
-        const summitG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        summitG.setAttribute('class', 'summit-pin');
-        summitG.setAttribute('data-summit-id', summit.id);
-        summitG.setAttribute('transform', `translate(${summit.x}, ${summit.y})`);
-        summitG.innerHTML = `
-          <circle class="summit-pin-bg" r="26" />
-          <text class="summit-icon" y="8" text-anchor="middle">⛰️</text>
-          <text class="summit-label" y="-34">${summit.name}</text>
-          <text class="summit-alt" y="-18">${summit.alt}m</text>
-        `;
-
-        summitG.addEventListener('mouseenter', e => handleSummitEnter(e, summit));
-        summitG.addEventListener('mousemove', handleSummitMove);
-        summitG.addEventListener('mouseleave', handleSummitLeave);
-        summitG.addEventListener('click', () => handleSummitClick(summit));
-
-        summitsGroup.appendChild(summitG);
-      });
 
       // 替換容器內的 Loading
       dom.mapContainer.innerHTML = '';
@@ -465,6 +580,31 @@
   }
 
   // ==========================================================================
+  // 五大山脈立體地勢 Modal 控制
+  // ==========================================================================
+  function openTopoModal(defaultTab = 'diagram') {
+    if (!dom.topoModalOverlay) return;
+    dom.topoModalOverlay.classList.add('active');
+    switchTopoTab(defaultTab);
+  }
+
+  function closeTopoModal() {
+    if (dom.topoModalOverlay) {
+      dom.topoModalOverlay.classList.remove('active');
+    }
+  }
+
+  function switchTopoTab(tabId) {
+    if (!dom.topoModalOverlay) return;
+    dom.topoModalOverlay.querySelectorAll('.topo-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tabId);
+    });
+    dom.topoModalOverlay.querySelectorAll('.topo-tab-content').forEach(content => {
+      content.classList.toggle('active', content.id === `topo-tab-${tabId}`);
+    });
+  }
+
+  // ==========================================================================
   // 地圖圖層切換器 (Map Layer Switcher)
   // ==========================================================================
   function switchMapLayer(layerName) {
@@ -490,7 +630,7 @@
     if (layerName === 'elevation') {
       if (topoLayer) topoLayer.style.display = 'block';
       if (dom.elevationLegend) dom.elevationLegend.classList.remove('hidden');
-      if (labelsLayer) labelsLayer.style.opacity = '0.4';
+      if (labelsLayer) labelsLayer.style.opacity = '1';
       if (pinsLayer) pinsLayer.style.display = 'block';
     } else if (layerName === 'admin') {
       if (topoLayer) topoLayer.style.display = 'none';
@@ -820,35 +960,340 @@
   }
 
   // ==========================================================================
-  // 中央氣象署即時衛星雲圖與雷達回波檢視邏輯 (Satellite Cloud & Radar Logic)
+  // 台灣地圖平移與縮放引擎 (Map Zoom & Pan Engine)
   // ==========================================================================
-  async function fetchSatelliteData() {
+  function applyMapTransform(skipTransition = false) {
+    if (!dom.mapContainer) return;
+    
+    // 限制縮放比例介於 0.75x 至 4.0x
+    state.mapZoom = Math.min(Math.max(state.mapZoom, 0.75), 4.0);
+
+    if (skipTransition) {
+      dom.mapContainer.classList.add('no-transition');
+    } else {
+      dom.mapContainer.classList.remove('no-transition');
+    }
+
+    dom.mapContainer.style.transform = `translate(${state.mapPanX}px, ${state.mapPanY}px) scale(${state.mapZoom})`;
+    
+    // 更新百分比倍率指示
+    if (dom.zoomIndicator) {
+      dom.zoomIndicator.textContent = Math.round(state.mapZoom * 100) + '%';
+    }
+
+    // 當處於放大狀態時更新 cursor 為抓取手勢
+    if (dom.mapWrapper) {
+      const isZoomed = state.mapZoom > 1.05 || Math.abs(state.mapPanX) > 10 || Math.abs(state.mapPanY) > 10;
+      dom.mapWrapper.classList.toggle('is-zoomed', isZoomed);
+    }
+  }
+
+  function setMapZoom(targetZoom, clientX, clientY) {
+    const clampedZoom = Math.min(Math.max(targetZoom, 0.75), 4.0);
+    if (!dom.mapContainer) return;
+
+    if (clientX !== undefined && clientY !== undefined) {
+      const rect = dom.mapContainer.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const zoomRatio = clampedZoom / state.mapZoom;
+
+      state.mapPanX = (state.mapPanX - (clientX - centerX)) * zoomRatio + (clientX - centerX);
+      state.mapPanY = (state.mapPanY - (clientY - centerY)) * zoomRatio + (clientY - centerY);
+    }
+
+    state.mapZoom = clampedZoom;
+
+    // 若接近 100% 且平移量小，平滑復位
+    if (Math.abs(state.mapZoom - 1.0) < 0.04) {
+      state.mapZoom = 1.0;
+      state.mapPanX = 0;
+      state.mapPanY = 0;
+    }
+
+    clampPanBounds();
+    applyMapTransform();
+  }
+
+  function zoomMapBy(factor, clientX, clientY) {
+    setMapZoom(state.mapZoom * factor, clientX, clientY);
+  }
+
+  function resetMapZoom() {
+    state.mapZoom = 1.0;
+    state.mapPanX = 0;
+    state.mapPanY = 0;
+    applyMapTransform();
+  }
+
+  function toggleMapFullscreen() {
+    if (!dom.taiwanStage) return;
+    const isNowFs = dom.taiwanStage.classList.toggle('is-fullscreen');
+    state.isMapFullscreen = isNowFs;
+    if (dom.btnMapFullscreen) {
+      dom.btnMapFullscreen.textContent = isNowFs ? '🗗' : '⛶';
+      dom.btnMapFullscreen.title = isNowFs ? '退出全螢幕地圖' : '切換全螢幕地圖';
+    }
+    resetMapZoom();
+  }
+
+  function clampPanBounds() {
+    // 依縮放倍率動態允許邊界平移量，避免島嶼完全移出畫面
+    const maxPan = 500 * Math.max(state.mapZoom, 1.0);
+    state.mapPanX = Math.min(Math.max(state.mapPanX, -maxPan), maxPan);
+    state.mapPanY = Math.min(Math.max(state.mapPanY, -maxPan), maxPan);
+  }
+
+  function initMapZoomAndPan() {
+    if (!dom.mapWrapper) return;
+
+    // 1. 按鈕控制
+    if (dom.btnZoomIn) {
+      dom.btnZoomIn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        zoomMapBy(1.3);
+      });
+    }
+    if (dom.btnZoomOut) {
+      dom.btnZoomOut.addEventListener('click', (e) => {
+        e.stopPropagation();
+        zoomMapBy(0.77);
+      });
+    }
+    if (dom.btnZoomReset) {
+      dom.btnZoomReset.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetMapZoom();
+      });
+    }
+    if (dom.btnMapFullscreen) {
+      dom.btnMapFullscreen.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMapFullscreen();
+      });
+    }
+
+    // 2. 滑鼠滾輪縮放 (平滑縮放於滑鼠所在位置)
+    dom.mapWrapper.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.15 : 0.87;
+      zoomMapBy(factor, e.clientX, e.clientY);
+    }, { passive: false });
+
+    // 3. 雙擊滑鼠放大
+    dom.mapWrapper.addEventListener('dblclick', (e) => {
+      // 避免點擊按鈕時觸發
+      if (e.target.closest('button')) return;
+      e.preventDefault();
+      zoomMapBy(1.4, e.clientX, e.clientY);
+    });
+
+    // 4. 按住滑鼠左鍵拖曳平移地圖
+    dom.mapWrapper.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      if (e.target.closest('#map-zoom-controls') || e.target.closest('.map-layer-switcher') || e.target.closest('.selected-hero-pill')) {
+        return;
+      }
+
+      state.isMapDragging = true;
+      state.mapHasDragged = false;
+      state.mapDragStartX = e.clientX - state.mapPanX;
+      state.mapDragStartY = e.clientY - state.mapPanY;
+
+      dom.mapContainer.classList.add('no-transition');
+      try {
+        dom.mapWrapper.setPointerCapture(e.pointerId);
+      } catch (_) {}
+    });
+
+    dom.mapWrapper.addEventListener('pointermove', (e) => {
+      if (!state.isMapDragging) return;
+      const newX = e.clientX - state.mapDragStartX;
+      const newY = e.clientY - state.mapDragStartY;
+
+      if (Math.abs(newX - state.mapPanX) > 4 || Math.abs(newY - state.mapPanY) > 4) {
+        state.mapHasDragged = true;
+        dom.mapWrapper.classList.add('is-dragging');
+      }
+
+      state.mapPanX = newX;
+      state.mapPanY = newY;
+      applyMapTransform(true);
+    });
+
+    const endDrag = (e) => {
+      if (!state.isMapDragging) return;
+      state.isMapDragging = false;
+      dom.mapContainer.classList.remove('no-transition');
+      dom.mapWrapper.classList.remove('is-dragging');
+      try {
+        if (e && e.pointerId) dom.mapWrapper.releasePointerCapture(e.pointerId);
+      } catch (_) {}
+      clampPanBounds();
+      applyMapTransform();
+      // 延遲 80ms 清除 mapHasDragged，確保阻止縣市點擊
+      setTimeout(() => { state.mapHasDragged = false; }, 80);
+    };
+
+    dom.mapWrapper.addEventListener('pointerup', endDrag);
+    dom.mapWrapper.addEventListener('pointercancel', endDrag);
+
+    // 5. 觸控手勢支援 (雙指縮放與單指平移)
+    let touchStartDist = 0;
+    let initialZoom = 1.0;
+
+    dom.mapWrapper.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        touchStartDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        initialZoom = state.mapZoom;
+      }
+    }, { passive: true });
+
+    dom.mapWrapper.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2 && touchStartDist > 0) {
+        e.preventDefault();
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        const newZoom = initialZoom * (dist / touchStartDist);
+        setMapZoom(newZoom, midX, midY);
+      }
+    }, { passive: false });
+  }
+
+  // ==========================================================================
+  // 中央氣象署「圖資專區」8 大觀測圖資與檢視器 (CWA Imagery Hub & Modal)
+  // ==========================================================================
+  async function fetchImageryData() {
     try {
       const headers = {};
       if (state.apiKey) {
         headers['X-CWA-API-KEY'] = state.apiKey;
       }
-      const res = await fetch('/api/weather/satellite', { headers });
-      if (!res.ok) throw new Error('無法取得即時衛星雲圖資料');
+      const res = await fetch('/api/weather/imagery', { headers });
+      if (!res.ok) throw new Error('無法取得圖資專區資料');
       const data = await res.json();
-      state.satelliteProducts = data.products || [];
-      if (state.satelliteProducts.length > 0) {
-        renderSatelliteProduct(state.activeSatelliteProduct);
-      }
+      state.imageryProducts = data.products || [];
+      state.satelliteProducts = state.imageryProducts; // 同步相容
+      renderImageryHubCards();
     } catch (err) {
-      console.error('抓取衛星雲圖失敗:', err);
+      console.error('抓取圖資專區失敗:', err);
     }
   }
 
-  function renderSatelliteProduct(productId) {
-    state.activeSatelliteProduct = productId;
-    const product = state.satelliteProducts.find(p => p.id === productId);
+  // 供舊端點調用
+  async function fetchSatelliteData() {
+    await fetchImageryData();
+    if (state.satelliteProducts.length > 0) {
+      renderImageryProduct(state.activeSatelliteProduct);
+    }
+  }
+
+  function renderImageryHubCards() {
+    if (!dom.imageryCardsGrid) return;
+    if (!state.imageryProducts || state.imageryProducts.length === 0) return;
+
+    dom.imageryCardsGrid.innerHTML = state.imageryProducts.map(p => {
+      const isIframe = p.type === 'iframe';
+      return `
+        <div class="cwa-cube-card" data-product="${p.id}" id="card-imagery-${p.id}">
+          <div class="cwa-cube-head">
+            <span class="cube-head-left">${p.icon} ${p.title}</span>
+            <span class="cube-tag">${p.tag ? p.tag.split('·')[0].trim() : '即時'}</span>
+          </div>
+          <div class="cwa-cube-body">
+            ${isIframe ? `
+              <div class="cwa-wind-overlay-pill">TGFS · WRF</div>
+              <img src="https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-B0028-003.jpg" class="cwa-cube-img" alt="${p.title}" style="filter: hue-rotate(180deg) brightness(0.85);" />
+            ` : `
+              <img src="${p.preview_url || p.image_url}" class="cwa-cube-img" alt="${p.title}" loading="lazy" onerror="this.src='${p.backup_url || p.image_url}'" />
+            `}
+            <!-- 中央氣象署專屬圓形水波紋標誌 (比照截圖左下角) -->
+            <div class="cwa-watermark" title="交通部中央氣象署 CWA">
+              <svg viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="46" fill="#1e3a8a"/>
+                <path d="M25 54 C35 44 45 64 55 54 C65 44 75 64 85 54" stroke="#ffffff" stroke-width="8" stroke-linecap="round" fill="none"/>
+                <path d="M20 40 C32 30 44 50 56 40 C68 30 78 50 88 40" stroke="#60a5fa" stroke-width="5" stroke-linecap="round" fill="none"/>
+              </svg>
+            </div>
+            <!-- 懸停資訊層 -->
+            <div class="cwa-cube-hover-layer">
+              <span class="hover-icon">🔍</span>
+              <span class="hover-text">點擊查看高解析大圖</span>
+              <span class="hover-sub">${p.full_title}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // 綁定卡片點擊開啟 Modal
+    dom.imageryCardsGrid.querySelectorAll('.cwa-cube-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const pid = card.dataset.product;
+        openImageryModal(pid);
+      });
+    });
+  }
+
+  function openImageryModal(productId) {
+    if (!dom.satelliteModal) return;
+    dom.satelliteModal.classList.add('active');
+    const targetId = productId || state.activeSatelliteProduct || 'satellite';
+    
+    if (state.imageryProducts.length === 0) {
+      fetchImageryData().then(() => {
+        renderImageryProduct(targetId);
+      });
+    } else {
+      renderImageryProduct(targetId);
+    }
+  }
+
+  function closeSatelliteModal() {
+    if (dom.satelliteModal) {
+      dom.satelliteModal.classList.remove('active');
+    }
+    // 關閉時暫停 iframe 減輕負載
+    if (dom.satelliteLiveIframe) {
+      dom.satelliteLiveIframe.src = '';
+    }
+  }
+
+  function applyModalImgZoom() {
+    if (!dom.satelliteLiveImg) return;
+    state.modalImgZoom = Math.min(Math.max(state.modalImgZoom, 1.0), 3.5);
+    dom.satelliteLiveImg.style.transform = `scale(${state.modalImgZoom})`;
+    if (dom.modalZoomVal) {
+      dom.modalZoomVal.textContent = Math.round(state.modalImgZoom * 100) + '%';
+    }
+  }
+
+  function renderImageryProduct(productId) {
+    // 支援舊產品 ID 對照
+    const idMap = {
+      'taiwan_color': 'satellite',
+      'east_asia_enhanced': 'satellite',
+      'radar_composite': 'radar',
+      'global_ir': 'satellite'
+    };
+    const resolvedId = idMap[productId] || productId;
+    state.activeSatelliteProduct = resolvedId;
+
+    const product = (state.imageryProducts || []).find(p => p.id === resolvedId) ||
+                    (state.imageryProducts && state.imageryProducts[0]);
     if (!product) return;
 
     // 更新 tabs active 狀態
     if (dom.satelliteChannelsTabs) {
       dom.satelliteChannelsTabs.querySelectorAll('.sat-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.product === productId);
+        tab.classList.toggle('active', tab.dataset.product === resolvedId);
       });
     }
 
@@ -857,42 +1302,127 @@
       dom.satelliteLoading.classList.remove('hidden');
     }
 
-    // 載入高解析影像
-    const img = new Image();
-    img.onload = () => {
-      if (dom.satelliteLiveImg) dom.satelliteLiveImg.src = product.image_url;
+    // 重置圖片縮放
+    state.modalImgZoom = 1.0;
+    applyModalImgZoom();
+
+    // 判定是否為 iframe 互動型態 (風場預報)
+    if (product.type === 'iframe') {
+      if (dom.modalZoomableImgWrap) dom.modalZoomableImgWrap.style.display = 'none';
+      if (dom.satelliteLiveIframe) {
+        dom.satelliteLiveIframe.style.display = 'block';
+        dom.satelliteLiveIframe.src = product.iframe_url || product.image_url;
+      }
       if (dom.satelliteLoading) dom.satelliteLoading.classList.add('hidden');
-    };
-    img.onerror = () => {
-      if (dom.satelliteLiveImg) dom.satelliteLiveImg.src = product.backup_url || product.image_url;
-      if (dom.satelliteLoading) dom.satelliteLoading.classList.add('hidden');
-    };
-    img.src = product.image_url;
+    } else {
+      if (dom.satelliteLiveIframe) {
+        dom.satelliteLiveIframe.style.display = 'none';
+        dom.satelliteLiveIframe.src = '';
+      }
+      if (dom.modalZoomableImgWrap) dom.modalZoomableImgWrap.style.display = 'flex';
+
+      // 載入高解析影像
+      const img = new Image();
+      img.onload = () => {
+        if (dom.satelliteLiveImg) dom.satelliteLiveImg.src = product.image_url;
+        if (dom.satelliteLoading) dom.satelliteLoading.classList.add('hidden');
+      };
+      img.onerror = () => {
+        if (dom.satelliteLiveImg) dom.satelliteLiveImg.src = product.backup_url || product.preview_url || product.image_url;
+        if (dom.satelliteLoading) dom.satelliteLoading.classList.add('hidden');
+      };
+      img.src = product.image_url;
+    }
 
     // 同步更新地圖底圖疊加層影像
-    if (dom.mapSatelliteImg && (productId === 'taiwan_color' || !dom.mapSatelliteImg.src)) {
+    if (dom.mapSatelliteImg && (resolvedId === 'satellite' || !dom.mapSatelliteImg.src)) {
       dom.mapSatelliteImg.src = product.image_url;
     }
 
-    // 更新產品文字資訊
-    if (dom.satProductTitle) dom.satProductTitle.textContent = product.title;
+    // 更新文字資訊
+    if (dom.satProductTitle) dom.satProductTitle.textContent = product.full_title || product.title;
     if (dom.satObsTime) dom.satObsTime.textContent = product.obs_time || '即時更新';
     if (dom.satDatasetId) dom.satDatasetId.textContent = product.dataset_id || 'CWA-OpenData';
-    if (dom.satLegendTitle) dom.satLegendTitle.textContent = product.title + ' · 雲層與水氣判讀';
+    if (dom.satSourceLink) dom.satSourceLink.href = product.link_url || 'https://www.cwa.gov.tw';
+    if (dom.satLegendTitle) dom.satLegendTitle.textContent = product.title + ' · 圖資與觀測判讀指南';
     if (dom.satLegendDesc) dom.satLegendDesc.textContent = product.description;
 
-    // 動態渲染色階圖例 (雷達回波 dBZ 或紅外線色調強化)
+    // 動態渲染對應產品之色階圖例
     if (dom.satScaleContainer) {
-      if (product.type === 'radar') {
+      if (resolvedId === 'radar') {
         dom.satScaleContainer.innerHTML = `
           <div class="radar-scale-bar">
             <div class="radar-scale-colors"></div>
             <div class="radar-scale-ticks">
-              <span>5 dBZ (毛毛細雨)</span>
+              <span>5 dBZ (毛雨)</span>
               <span>20 dBZ (小雨)</span>
               <span>35 dBZ (顯著降雨)</span>
               <span>50 dBZ (豪大雨)</span>
-              <span>65 dBZ+ (強劇烈對流/冰雹)</span>
+              <span>65+ dBZ (強對流/冰雹)</span>
+            </div>
+          </div>
+        `;
+      } else if (resolvedId === 'rainfall') {
+        dom.satScaleContainer.innerHTML = `
+          <div class="radar-scale-bar">
+            <div style="height:12px;border-radius:9999px;background:linear-gradient(90deg, #e0f2fe 0%, #38bdf8 20%, #22c55e 40%, #eab308 60%, #ef4444 80%, #a855f7 100%);border:1px solid rgba(255,255,255,0.3)"></div>
+            <div class="radar-scale-ticks">
+              <span>0 mm</span>
+              <span>10 mm (小雨)</span>
+              <span>50 mm (大雨)</span>
+              <span>130 mm (豪雨)</span>
+              <span>200+ mm (大豪雨)</span>
+            </div>
+          </div>
+        `;
+      } else if (resolvedId === 'uvi') {
+        dom.satScaleContainer.innerHTML = `
+          <div class="radar-scale-bar">
+            <div style="height:12px;border-radius:9999px;background:linear-gradient(90deg, #22c55e 0%, #eab308 30%, #f97316 55%, #ef4444 80%, #a855f7 100%);border:1px solid rgba(255,255,255,0.3)"></div>
+            <div class="radar-scale-ticks">
+              <span>0-2 (微量級)</span>
+              <span>3-5 (中量級)</span>
+              <span>6-7 (高量級)</span>
+              <span>8-10 (過量級)</span>
+              <span>11+ (危險級)</span>
+            </div>
+          </div>
+        `;
+      } else if (resolvedId === 'temperature') {
+        dom.satScaleContainer.innerHTML = `
+          <div class="radar-scale-bar">
+            <div style="height:12px;border-radius:9999px;background:linear-gradient(90deg, #3b82f6 0%, #06b6d4 25%, #22c55e 50%, #f97316 75%, #dc2626 100%);border:1px solid rgba(255,255,255,0.3)"></div>
+            <div class="radar-scale-ticks">
+              <span>&lt; 10°C (寒冷)</span>
+              <span>18°C (涼爽)</span>
+              <span>26°C (舒適)</span>
+              <span>32°C (悶熱)</span>
+              <span>&gt; 36°C (高溫酷熱)</span>
+            </div>
+          </div>
+        `;
+      } else if (resolvedId === 'health') {
+        dom.satScaleContainer.innerHTML = `
+          <div class="radar-scale-bar">
+            <div style="height:12px;border-radius:9999px;background:linear-gradient(90deg, #ffffff 0%, #fde047 33%, #fb923c 66%, #ef4444 100%);border:1px solid rgba(255,255,255,0.3)"></div>
+            <div class="radar-scale-ticks">
+              <span>預警分級：正常</span>
+              <span>注意 (黃)</span>
+              <span>警戒 (橘)</span>
+              <span>危險至高危險 (紅)</span>
+            </div>
+          </div>
+        `;
+      } else if (resolvedId === 'wind') {
+        dom.satScaleContainer.innerHTML = `
+          <div class="radar-scale-bar">
+            <div style="height:12px;border-radius:9999px;background:linear-gradient(90deg, #0284c7 0%, #38bdf8 25%, #4ade80 50%, #facc15 75%, #f43f5e 100%);border:1px solid rgba(255,255,255,0.3)"></div>
+            <div class="radar-scale-ticks">
+              <span>微風 (1-3級)</span>
+              <span>和風 (4-5級)</span>
+              <span>強風 (6-7級)</span>
+              <span>大風/烈風 (8-9級)</span>
+              <span>狂風/暴風 (10+級)</span>
             </div>
           </div>
         `;
@@ -912,20 +1442,12 @@
     }
   }
 
-  function openSatelliteModal() {
-    if (!dom.satelliteModal) return;
-    dom.satelliteModal.classList.add('active');
-    if (state.satelliteProducts.length === 0) {
-      fetchSatelliteData();
-    } else {
-      renderSatelliteProduct(state.activeSatelliteProduct);
-    }
+  function renderSatelliteProduct(productId) {
+    renderImageryProduct(productId);
   }
 
-  function closeSatelliteModal() {
-    if (dom.satelliteModal) {
-      dom.satelliteModal.classList.remove('active');
-    }
+  function openSatelliteModal() {
+    openImageryModal('satellite');
   }
 
   // ==========================================================================
@@ -938,6 +1460,36 @@
         const pill = e.target.closest('.layer-pill');
         if (!pill) return;
         switchMapLayer(pill.dataset.layer);
+      });
+    }
+
+    // 開啟五大山脈 Modal
+    if (dom.btnTopoModal) {
+      dom.btnTopoModal.addEventListener('click', () => openTopoModal('diagram'));
+    }
+    if (dom.btnViewTopoDiagram) {
+      dom.btnViewTopoDiagram.addEventListener('click', () => openTopoModal('diagram'));
+    }
+
+    // 關閉五大山脈 Modal
+    if (dom.btnCloseTopo) {
+      dom.btnCloseTopo.addEventListener('click', closeTopoModal);
+    }
+    if (dom.btnCloseTopoOk) {
+      dom.btnCloseTopoOk.addEventListener('click', closeTopoModal);
+    }
+    if (dom.topoModalOverlay) {
+      dom.topoModalOverlay.addEventListener('click', e => {
+        if (e.target === dom.topoModalOverlay) closeTopoModal();
+      });
+    }
+
+    // 五大山脈 Modal 分頁切換
+    if (dom.topoModalOverlay) {
+      dom.topoModalOverlay.addEventListener('click', e => {
+        const tabBtn = e.target.closest('.topo-tab-btn');
+        if (!tabBtn) return;
+        switchTopoTab(tabBtn.dataset.tab);
       });
     }
 
@@ -961,22 +1513,62 @@
       });
     }
 
-    // 重新整理衛星雲圖
+    // 重新整理衛星雲圖 / 圖資
     if (dom.btnRefreshSatellite) {
       dom.btnRefreshSatellite.addEventListener('click', () => {
         dom.btnRefreshSatellite.textContent = '載入中...';
-        fetchSatelliteData().then(() => {
+        fetchImageryData().then(() => {
+          renderImageryProduct(state.activeSatelliteProduct);
           dom.btnRefreshSatellite.textContent = '🔄 重新整理';
         });
       });
     }
 
-    // 切換衛星產品頁籤
+    // 重新整理圖資專區按鈕
+    if (dom.btnRefreshImageryHub) {
+      dom.btnRefreshImageryHub.addEventListener('click', () => {
+        dom.btnRefreshImageryHub.textContent = '更新中...';
+        fetchImageryData().then(() => {
+          dom.btnRefreshImageryHub.textContent = '🔄 重新整理圖資';
+        });
+      });
+    }
+
+    // 導覽列「圖資專區」平滑滾動按鈕
+    if (dom.btnImageryNav) {
+      dom.btnImageryNav.addEventListener('click', () => {
+        if (dom.imageryHubSection) {
+          dom.imageryHubSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+
+    // 切換衛星產品 / 圖資頁籤
     if (dom.satelliteChannelsTabs) {
       dom.satelliteChannelsTabs.addEventListener('click', e => {
         const tab = e.target.closest('.sat-tab');
         if (!tab) return;
-        renderSatelliteProduct(tab.dataset.product);
+        renderImageryProduct(tab.dataset.product);
+      });
+    }
+
+    // 彈窗高解析圖片縮放控制
+    if (dom.btnModalZoomIn) {
+      dom.btnModalZoomIn.addEventListener('click', () => {
+        state.modalImgZoom = Math.min(state.modalImgZoom * 1.3, 3.5);
+        applyModalImgZoom();
+      });
+    }
+    if (dom.btnModalZoomOut) {
+      dom.btnModalZoomOut.addEventListener('click', () => {
+        state.modalImgZoom = Math.max(state.modalImgZoom * 0.77, 1.0);
+        applyModalImgZoom();
+      });
+    }
+    if (dom.btnModalZoomReset) {
+      dom.btnModalZoomReset.addEventListener('click', () => {
+        state.modalImgZoom = 1.0;
+        applyModalImgZoom();
       });
     }
 
@@ -1095,9 +1687,10 @@
   // ==========================================================================
   async function init() {
     initEventListeners();
+    initMapZoomAndPan();
     await loadAndRenderMap();
     await fetchWeatherData();
-    fetchSatelliteData(); // 預載中央氣象署衛星雲圖資料
+    fetchImageryData(); // 載入中央氣象署圖資專區 8 大產品
   }
 
   if (document.readyState === 'loading') {

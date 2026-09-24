@@ -48,8 +48,16 @@ async def get_forecast(
 async def get_satellite_imagery(
     x_cwa_api_key: Optional[str] = Header(None, alias="X-CWA-API-KEY", description="中央氣象署授權碼")
 ):
-    """取得中央氣象署即時衛星雲圖與雷達回波圖 (台灣彩色雲圖、東亞色調強化、雷達整合回波、全球紅外線)"""
+    """取得中央氣象署即時衛星雲圖與雷達回波圖"""
     result = await CWAService.fetch_satellite_imagery(api_key=x_cwa_api_key)
+    return JSONResponse(content=result)
+
+@app.get("/api/weather/imagery")
+async def get_weather_imagery(
+    x_cwa_api_key: Optional[str] = Header(None, alias="X-CWA-API-KEY", description="中央氣象署授權碼")
+):
+    """取得中央氣象署「圖資專區」8 大觀測圖資 (衛星、雷達、雨量、紫外線、閃電、溫度、健康氣象、風場預報)"""
+    result = await CWAService.fetch_imagery_zone(api_key=x_cwa_api_key)
     return JSONResponse(content=result)
 
 @app.get("/api/regions")
