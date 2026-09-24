@@ -13,7 +13,7 @@
 ## 🌐 專案站點與連結 (Web Site Links)
 
 - 🔗 **GitHub 儲存庫**：[https://github.com/jiajun1014/AIoT_L3_CWA_HW1](https://github.com/jiajun1014/AIoT_L3_CWA_HW1)
-- 🚀 **Web Site 線上成果位址**：[https://github.com/jiajun1014/AIoT_L3_CWA_HW1](https://github.com/jiajun1014/AIoT_L3_CWA_HW1)
+- 🚀 **Web Site 線上成果位址 (GitHub Pages)**：[https://jiajun1014.github.io/AIoT_L3_CWA_HW1/](https://jiajun1014.github.io/AIoT_L3_CWA_HW1/)
 - 💻 **本機伺服器服務位址**：`http://127.0.0.1:8000`
 - 📚 **Swagger 互動式 API 文件**：`http://127.0.0.1:8000/docs`
 

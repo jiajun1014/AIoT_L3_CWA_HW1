@@ -33,6 +33,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=FileResponse)
 async def serve_index():
+    if os.path.exists("index.html"):
+        return FileResponse("index.html")
     return FileResponse("static/index.html")
 
 @app.get("/api/weather/forecast")
